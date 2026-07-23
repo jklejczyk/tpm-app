@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "adaf240d485f2927fbb6486b7d5f644d",
+    "content-hash": "9d007b956b74eace4e87afa7912c7e86",
     "packages": [
         {
             "name": "brick/math",
@@ -1056,6 +1056,58 @@
                 }
             ],
             "time": "2026-07-17T13:53:03+00:00"
+        },
+        {
+            "name": "jklejczyk/tpm-core",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jklejczyk/tpm-core.git",
+                "reference": "b763d4f79437dc44773987be1c08b6ca72f83fc9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jklejczyk/tpm-core/zipball/b763d4f79437dc44773987be1c08b6ca72f83fc9",
+                "reference": "b763d4f79437dc44773987be1c08b6ca72f83fc9",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.3"
+            },
+            "require-dev": {
+                "deptrac/deptrac": "^2.0",
+                "pestphp/pest": "^3.0",
+                "phpstan/phpstan": "^2.0"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Tpm\\": "src/"
+                }
+            },
+            "scripts": {
+                "check": [
+                    "pest",
+                    "phpstan analyse",
+                    "deptrac analyse"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jakub Klejczyk",
+                    "email": "jklejczyk@gmail.com"
+                }
+            ],
+            "description": "TPM domain library",
+            "support": {
+                "source": "https://github.com/jklejczyk/tpm-core/tree/main",
+                "issues": "https://github.com/jklejczyk/tpm-core/issues"
+            },
+            "time": "2026-07-23T19:48:10+00:00"
         },
         {
             "name": "laravel/framework",
@@ -9890,7 +9942,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "jklejczyk/tpm-core": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
