@@ -56,13 +56,13 @@ services:
     ports:
       - "5433:5432"
     environment:
-      POSTGRES_DB: newsletter
-      POSTGRES_USER: newsletter
+      POSTGRES_DB: tpmapp
+      POSTGRES_USER: tpmapp
       POSTGRES_PASSWORD: secret
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U newsletter"]
+      test: ["CMD-SHELL", "pg_isready -U tpmapp"]
       interval: 5s
       timeout: 3s
       retries: 5
