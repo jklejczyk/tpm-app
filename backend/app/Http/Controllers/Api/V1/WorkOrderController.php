@@ -1,15 +1,21 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Http\Controllers\Api\V1;
 
 use App\Exceptions\WorkOrderNotFound;
-use App\Http\Controllers\Controller;
-use App\Http\Resources\Api\V1\WorkOrderResource;
 use App\Factories\ActorFactory;
+use App\Factories\WorkOrderDataFactory;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\AssignWorkOrderRequest;
+use App\Http\Requests\Api\V1\HoldWorkOrderRequest;
+use App\Http\Requests\Api\V1\ListWorkOrdersRequest;
+use App\Http\Requests\Api\V1\ReportWorkOrderRequest;
+use App\Http\Requests\Api\V1\ResolveWorkOrderRequest;
+use App\Http\Resources\Api\V1\WorkOrderResource;
+use App\Queries\WorkOrderQuery;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Str;
 use Tpm\Shared\MachineId;
 use Tpm\Shared\UserId;
@@ -23,21 +29,38 @@ final class WorkOrderController extends Controller
     public function __construct(
         private readonly WorkOrderRepository $repository,
         private readonly ActorFactory $actors,
-    ) {
+        private readonly WorkOrderDataFactory $data,
+        private readonly WorkOrderQuery $query,
+    ) {}
+
+    public function index(ListWorkOrdersRequest $request): AnonymousResourceCollection
+    {
+        $page = $this->query->paginate(
+            $request->perPage(),
+            $request->sort(),
+            $request->direction(),
+        );
+
+        $page->setCollection(
+            collect($this->data->fromModels($page->items())),
+        );
+
+        return WorkOrderResource::collection($page);
     }
 
-    public function report(Request $request): JsonResponse
+    public function report(ReportWorkOrderRequest $request): JsonResponse
     {
         $workOrder = WorkOrder::report(
             new WorkOrderId((string) Str::ulid()),
             new MachineId((string) $request->string('machine_id')),
             WorkOrderReason::from((string) $request->string('reason')),
             new UserId((string) $request->user()->id),
+            now()->toDateTimeImmutable(),
         );
 
         $this->repository->save($workOrder);
 
-        return WorkOrderResource::make($workOrder)->response()->setStatusCode(201);
+        return WorkOrderResource::make($this->data->fromEntity($workOrder))->response()->setStatusCode(201);
     }
 
     public function show(string $id): WorkOrderResource
@@ -45,10 +68,10 @@ final class WorkOrderController extends Controller
         $workOrderId = new WorkOrderId($id);
         $workOrder = $this->repository->findById($workOrderId) ?? throw WorkOrderNotFound::withId($workOrderId);
 
-        return WorkOrderResource::make($workOrder);
+        return WorkOrderResource::make($this->data->fromEntity($workOrder));
     }
 
-    public function assign(Request $request, string $id): WorkOrderResource
+    public function assign(AssignWorkOrderRequest $request, string $id): WorkOrderResource
     {
         $workOrderId = new WorkOrderId($id);
         $workOrder = $this->repository->findById($workOrderId) ?? throw WorkOrderNotFound::withId($workOrderId);
@@ -60,7 +83,7 @@ final class WorkOrderController extends Controller
 
         $this->repository->save($workOrder);
 
-        return WorkOrderResource::make($workOrder);
+        return WorkOrderResource::make($this->data->fromEntity($workOrder));
     }
 
     public function start(Request $request, string $id): WorkOrderResource
@@ -72,10 +95,10 @@ final class WorkOrderController extends Controller
 
         $this->repository->save($workOrder);
 
-        return WorkOrderResource::make($workOrder);
+        return WorkOrderResource::make($this->data->fromEntity($workOrder));
     }
 
-    public function hold(Request $request, string $id): WorkOrderResource
+    public function hold(HoldWorkOrderRequest $request, string $id): WorkOrderResource
     {
         $workOrderId = new WorkOrderId($id);
         $workOrder = $this->repository->findById($workOrderId) ?? throw WorkOrderNotFound::withId($workOrderId);
@@ -87,7 +110,7 @@ final class WorkOrderController extends Controller
 
         $this->repository->save($workOrder);
 
-        return WorkOrderResource::make($workOrder);
+        return WorkOrderResource::make($this->data->fromEntity($workOrder));
     }
 
     public function resume(Request $request, string $id): WorkOrderResource
@@ -99,10 +122,10 @@ final class WorkOrderController extends Controller
 
         $this->repository->save($workOrder);
 
-        return WorkOrderResource::make($workOrder);
+        return WorkOrderResource::make($this->data->fromEntity($workOrder));
     }
 
-    public function resolve(Request $request, string $id): WorkOrderResource
+    public function resolve(ResolveWorkOrderRequest $request, string $id): WorkOrderResource
     {
         $workOrderId = new WorkOrderId($id);
         $workOrder = $this->repository->findById($workOrderId) ?? throw WorkOrderNotFound::withId($workOrderId);
@@ -114,7 +137,7 @@ final class WorkOrderController extends Controller
 
         $this->repository->save($workOrder);
 
-        return WorkOrderResource::make($workOrder);
+        return WorkOrderResource::make($this->data->fromEntity($workOrder));
     }
 
     public function close(Request $request, string $id): WorkOrderResource
@@ -126,6 +149,6 @@ final class WorkOrderController extends Controller
 
         $this->repository->save($workOrder);
 
-        return WorkOrderResource::make($workOrder);
+        return WorkOrderResource::make($this->data->fromEntity($workOrder));
     }
 }

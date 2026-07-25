@@ -14,6 +14,7 @@ Route::get('/user', function (Request $request) {
 Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
 
+    Route::get('work-orders', [WorkOrderController::class, 'index']);
     Route::post('work-orders', [WorkOrderController::class, 'report']);
     Route::get('work-orders/{id}', [WorkOrderController::class, 'show']);
 

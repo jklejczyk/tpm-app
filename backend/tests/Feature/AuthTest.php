@@ -9,8 +9,8 @@ it('issues a token on valid login', function () {
 
     $this->postJson('/api/v1/login', ['email' => $user->email, 'password' => 'password'])
         ->assertOk()
-        ->assertJsonStructure(['token', 'role'])
-        ->assertJsonPath('role', 'manager');
+        ->assertJsonStructure(['token', 'user' => ['id', 'name', 'role']])
+        ->assertJsonPath('user.role', 'manager');
 });
 
 it('rejects invalid credentials with 422', function () {

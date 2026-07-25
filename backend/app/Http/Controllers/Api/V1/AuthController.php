@@ -1,10 +1,9 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\V1\LoginRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -13,7 +12,7 @@ use Illuminate\Validation\ValidationException;
 
 final class AuthController extends Controller
 {
-    public function login(Request $request): JsonResponse
+    public function login(LoginRequest $request): JsonResponse
     {
         $user = User::query()->where('email', (string) $request->string('email'))->first();
 
@@ -25,7 +24,11 @@ final class AuthController extends Controller
 
         return response()->json([
             'token' => $user->createToken('api')->plainTextToken,
-            'role' => $user->role->value,
+            'user' => [
+                'id' => (string) $user->id,
+                'name' => $user->name,
+                'role' => $user->role->value,
+            ],
         ]);
     }
 

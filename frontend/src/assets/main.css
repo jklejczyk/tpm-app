@@ -1,0 +1,186 @@
+:root {
+    --ink: #16191d;
+    --muted: #6b7280;
+    --line: #d9dde1;
+    --accent: #e8590c;
+    font-family:
+        system-ui,
+        -apple-system,
+        sans-serif;
+    color: var(--ink);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: #eef0f2;
+}
+
+.mono {
+    font-family: ui-monospace, 'SFMono-Regular', 'JetBrains Mono', monospace;
+}
+
+.topbar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1.25rem;
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+}
+
+.topbar strong {
+    letter-spacing: 0.04em;
+}
+
+.topbar .who {
+    margin-left: auto;
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+main {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 1.5rem 1.25rem;
+}
+
+input,
+select,
+button {
+    font: inherit;
+    padding: 0.45rem 0.65rem;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: #fff;
+}
+
+button {
+    cursor: pointer;
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+}
+
+button:hover {
+    opacity: 0.9;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+
+button.ghost {
+    background: #fff;
+    color: var(--ink);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+th {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    background: #f7f8f9;
+    border-bottom: 1px solid var(--line);
+}
+
+td {
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--line);
+}
+
+tbody tr {
+    cursor: pointer;
+}
+
+tbody tr:hover td {
+    background: #f7f8f9;
+}
+
+.pill {
+    display: inline-block;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    color: #fff;
+    font-size: 0.78rem;
+    white-space: nowrap;
+}
+
+.pill[data-status='reported'] {
+    background: #64748b;
+}
+
+.pill[data-status='assigned'] {
+    background: #2563eb;
+}
+
+.pill[data-status='in_progress'] {
+    background: #e8590c;
+}
+
+.pill[data-status='on_hold'] {
+    background: #ca8a04;
+}
+
+.pill[data-status='resolved'] {
+    background: #16a34a;
+}
+
+.pill[data-status='closed'] {
+    background: #1e293b;
+}
+
+.lifecycle {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+}
+
+.lifecycle li {
+    padding: 0.3rem 0.6rem;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    color: var(--muted);
+    font-size: 0.85rem;
+}
+
+.lifecycle li.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.error {
+    color: #c0341d;
+}
+
+.toolbar {
+    display: flex;
+    gap: 0.5rem;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+}

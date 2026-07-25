@@ -1,11 +1,24 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { RouterView, useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+
+const auth = useAuthStore()
+const router = useRouter()
+
+async function logout() {
+    await auth.logout()
+    router.push({ name: 'login' })
+}
+</script>
 
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
-</template>
+    <header v-if="auth.isAuthenticated" class="topbar">
+        <strong>TPM</strong>
+        <span class="who">{{ auth.user?.name }} - {{ auth.user?.role }}</span>
+        <button class="ghost" @click="logout">Sign out</button>
+    </header>
 
-<style scoped></style>
+    <main>
+        <RouterView />
+    </main>
+</template>

@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use Database\Factories\WorkOrderModelFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class WorkOrderModel extends Model
 {
-    /** @use HasFactory<\Database\Factories\WorkOrderModelFactory> */
+    /** @use HasFactory<WorkOrderModelFactory> */
     use HasFactory;
 
     protected $table = 'work_orders';
@@ -22,8 +23,19 @@ class WorkOrderModel extends Model
         'status',
         'reason',
         'reported_by',
+        'reported_at',
         'assigned_to',
         'resolution',
         'hold_reason',
     ];
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'reported_at' => 'datetime',
+        ];
+    }
 }

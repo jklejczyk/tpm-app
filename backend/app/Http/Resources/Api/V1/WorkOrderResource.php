@@ -1,12 +1,10 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Http\Resources\Api\V1;
 
+use App\Data\WorkOrderData;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Tpm\WorkOrder\WorkOrder;
 
 class WorkOrderResource extends JsonResource
 {
@@ -15,8 +13,9 @@ class WorkOrderResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        /** @var WorkOrder $workOrder */
-        $workOrder = $this->resource;
+        /** @var WorkOrderData $data */
+        $data = $this->resource;
+        $workOrder = $data->workOrder;
 
         return [
             'id' => $workOrder->id()->value,
@@ -24,9 +23,12 @@ class WorkOrderResource extends JsonResource
             'status' => $workOrder->status()->value,
             'reason' => $workOrder->reason()->value,
             'reportedBy' => $workOrder->reportedBy()->value,
+            'reportedByName' => $data->reportedByName,
             'assignedTo' => $workOrder->assignedTo()?->value,
+            'assignedToName' => $data->assignedToName,
             'resolution' => $workOrder->resolution(),
             'holdReason' => $workOrder->holdReason(),
+            'reportedAt' => $workOrder->reportedAt()->format(\DateTimeInterface::ATOM),
         ];
     }
 }

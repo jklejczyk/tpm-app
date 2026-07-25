@@ -1,0 +1,68 @@
+export type WorkOrderStatus =
+    'reported' | 'assigned' | 'in_progress' | 'on_hold' | 'resolved' | 'closed'
+
+export type WorkOrderReason = 'breakdown' | 'inspection' | 'operator_report'
+
+export type Role = 'operator' | 'technician' | 'manager'
+
+export type TransitionName = 'assign' | 'start' | 'hold' | 'resume' | 'resolve' | 'close'
+
+export interface WorkOrder {
+    id: string
+    machineId: string
+    status: WorkOrderStatus
+    reason: WorkOrderReason
+    reportedBy: string
+    reportedByName: string | null
+    assignedTo: string | null
+    assignedToName: string | null
+    resolution: string | null
+    holdReason: string | null
+    reportedAt: string | null
+}
+
+export interface AuthUser {
+    id: string
+    name: string
+    role: Role
+}
+
+export type SortDirection = 'asc' | 'desc'
+
+export type WorkOrderSortField = 'reported_at' | 'status' | 'machine_id' | 'reason' | 'assigned_to'
+
+export interface PageMeta {
+    currentPage: number
+    lastPage: number
+    perPage: number
+    total: number
+}
+
+export interface Paginated<T> {
+    data: T[]
+    meta: PageMeta
+}
+
+export const STATUS_LABEL: Record<WorkOrderStatus, string> = {
+    reported: 'Reported',
+    assigned: 'Assigned',
+    in_progress: 'In progress',
+    on_hold: 'On hold',
+    resolved: 'Resolved',
+    closed: 'Closed',
+}
+
+export const REASON_LABEL: Record<WorkOrderReason, string> = {
+    breakdown: 'Breakdown',
+    inspection: 'Inspection',
+    operator_report: 'Operator report',
+}
+
+export const LIFECYCLE: WorkOrderStatus[] = [
+    'reported',
+    'assigned',
+    'in_progress',
+    'on_hold',
+    'resolved',
+    'closed',
+]
