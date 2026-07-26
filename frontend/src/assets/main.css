@@ -184,3 +184,26 @@ tbody tr:hover td {
     margin: 1rem 0;
     flex-wrap: wrap;
 }
+
+.skeleton {
+    display: inline-block;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #e6e6e6 25%, #f0f0f0 50%, #e6e6e6 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .skeleton {
+        animation: none;
+    }
+}
