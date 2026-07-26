@@ -1,10 +1,11 @@
 <?php
 
+use App\Exceptions\WorkOrderNotFound;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use App\Exceptions\WorkOrderNotFound;
 use Illuminate\Http\Request;
+use Tpm\WorkOrder\Exception\AssigneeMustBeTechnician;
 use Tpm\WorkOrder\Exception\IllegalStateTransition;
 use Tpm\WorkOrder\Exception\MissingHoldReason;
 use Tpm\WorkOrder\Exception\MissingResolution;
@@ -32,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(fn (WorkOrderNotFound $e) => response()->json(['message' => $e->getMessage()], 404));
         $exceptions->render(fn (UnauthorizedTransition $e) => response()->json(['message' => $e->getMessage()], 403));
         $exceptions->render(fn (IllegalStateTransition $e) => response()->json(['message' => $e->getMessage()], 422));
+        $exceptions->render(fn (AssigneeMustBeTechnician $e) => response()->json(['message' => $e->getMessage()], 422));
         $exceptions->render(fn (MissingHoldReason $e) => response()->json(['message' => $e->getMessage()], 422));
         $exceptions->render(fn (MissingResolution $e) => response()->json(['message' => $e->getMessage()], 422));
     })->create();

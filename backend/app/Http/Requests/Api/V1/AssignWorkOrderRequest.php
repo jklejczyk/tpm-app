@@ -17,7 +17,7 @@ final class AssignWorkOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'technician_id' => ['required', 'string'],
+            'technician_id' => ['required', 'string', 'exists:users,id'],
         ];
     }
 }

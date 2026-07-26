@@ -81,6 +81,27 @@ it('forbids an operator from assigning a work order', function () {
         ->assertForbidden();
 });
 
+it('rejects assigning a work order to a non-technician with 422', function () {
+    $manager = User::factory()->manager()->create();
+    $operator = User::factory()->create();
+
+    Sanctum::actingAs($manager);
+    $id = reportWorkOrder();
+
+    $this->postJson("/api/v1/work-orders/{$id}/assign", ['technician_id' => (string) $operator->id])
+        ->assertStatus(422);
+});
+
+it('rejects assigning a work order to a non-existent user with 422', function () {
+    $manager = User::factory()->manager()->create();
+
+    Sanctum::actingAs($manager);
+    $id = reportWorkOrder();
+
+    $this->postJson("/api/v1/work-orders/{$id}/assign", ['technician_id' => '999999'])
+        ->assertStatus(422);
+});
+
 it('forbids a technician who is not the assignee from starting', function () {
     $manager = User::factory()->manager()->create();
     $assignee = User::factory()->technician()->create();

@@ -12,6 +12,7 @@ use App\Http\Requests\Api\V1\ListWorkOrdersRequest;
 use App\Http\Requests\Api\V1\ReportWorkOrderRequest;
 use App\Http\Requests\Api\V1\ResolveWorkOrderRequest;
 use App\Http\Resources\Api\V1\WorkOrderResource;
+use App\Models\User;
 use App\Queries\WorkOrderQuery;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -76,9 +77,12 @@ final class WorkOrderController extends Controller
         $workOrderId = new WorkOrderId($id);
         $workOrder = $this->repository->findById($workOrderId) ?? throw WorkOrderNotFound::withId($workOrderId);
 
+        $technician = User::query()->findOrFail((string) $request->string('technician_id'));
+
         $workOrder->assign(
             $this->actors->fromUser($request->user()),
-            new UserId((string) $request->string('technician_id')),
+            new UserId((string) $technician->id),
+            $technician->role,
         );
 
         $this->repository->save($workOrder);
