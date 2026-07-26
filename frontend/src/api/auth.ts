@@ -1,5 +1,5 @@
 import { http } from './http'
-import type { AuthUser } from '@/types/workOrder'
+import type { AuthUser } from '@/types/user'
 
 export interface LoginResponse {
     token: string

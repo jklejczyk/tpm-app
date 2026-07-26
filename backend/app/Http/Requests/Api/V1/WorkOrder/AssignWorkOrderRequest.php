@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Api\V1;
+namespace App\Http\Requests\Api\V1\WorkOrder;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-final class LoginRequest extends FormRequest
+final class AssignWorkOrderRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -17,8 +17,7 @@ final class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'email'],
-            'password' => ['required', 'string'],
+            'technician_id' => ['required', 'string', 'exists:users,id'],
         ];
     }
 }

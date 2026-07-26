@@ -1,4 +1,5 @@
-import type { Role, TransitionName, WorkOrder } from '@/types/workOrder'
+import type { Role } from '@/types/user'
+import type { TransitionName, WorkOrder } from '@/types/workOrder'
 
 export interface AllowedTransition {
     name: TransitionName

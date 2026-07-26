@@ -2,7 +2,7 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import * as authApi from '@/api/auth'
 import { getToken, setToken } from '@/api/http'
-import type { AuthUser } from '@/types/workOrder'
+import type { AuthUser } from '@/types/user'
 
 const USER_KEY = 'tpm.user'
 

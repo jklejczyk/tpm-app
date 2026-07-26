@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Api\V1;
+namespace App\Http\Requests\Api\V1\WorkOrder;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-final class HoldWorkOrderRequest extends FormRequest
+final class ResolveWorkOrderRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -17,7 +17,7 @@ final class HoldWorkOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'reason' => ['required', 'string'],
+            'resolution' => ['required', 'string'],
         ];
     }
 }

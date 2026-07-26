@@ -3,8 +3,6 @@ export type WorkOrderStatus =
 
 export type WorkOrderReason = 'breakdown' | 'inspection' | 'operator_report'
 
-export type Role = 'operator' | 'technician' | 'manager'
-
 export type TransitionName = 'assign' | 'start' | 'hold' | 'resume' | 'resolve' | 'close'
 
 export interface WorkOrder {
@@ -19,12 +17,6 @@ export interface WorkOrder {
     resolution: string | null
     holdReason: string | null
     reportedAt: string | null
-}
-
-export interface AuthUser {
-    id: string
-    name: string
-    role: Role
 }
 
 export type SortDirection = 'asc' | 'desc'

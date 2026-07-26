@@ -1,24 +1,37 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useWorkOrdersStore } from '@/stores/workOrders'
+import { useUsersStore } from '@/stores/users'
 import type { AllowedTransition } from '@/domain/transitions'
 
 const props = defineProps<{ id: string; actions: AllowedTransition[] }>()
 
 const store = useWorkOrdersStore()
+const users = useUsersStore()
 
 const error = ref<string | null>(null)
 const inputs = ref<Record<string, string>>({})
 
-const PLACEHOLDER: Record<NonNullable<AllowedTransition['needs']>, string> = {
-    technician_id: 'technician id (e.g. 2)',
+const PLACEHOLDER: Partial<Record<NonNullable<AllowedTransition['needs']>, string>> = {
     reason: 'hold reason',
     resolution: 'resolution',
 }
 
 function placeholderFor(action: AllowedTransition): string {
-    return action.needs ? PLACEHOLDER[action.needs] : ''
+    return action.needs ? (PLACEHOLDER[action.needs] ?? '') : ''
 }
+
+onMounted(() => {
+    props.actions.forEach((a) => {
+        if (a.needs && inputs.value[a.name] === undefined) {
+            inputs.value[a.name] = ''
+        }
+    })
+
+    if (props.actions.some((a) => a.needs === 'technician_id')) {
+        void users.fetch('technician')
+    }
+})
 
 async function run(action: AllowedTransition) {
     error.value = null
@@ -46,7 +59,13 @@ async function run(action: AllowedTransition) {
     <h3>Actions</h3>
     <div v-if="actions.length" class="actions">
         <form v-for="a in actions" :key="a.name" class="action" @submit.prevent="run(a)">
-            <input v-if="a.needs" v-model="inputs[a.name]" :placeholder="placeholderFor(a)" />
+            <select v-if="a.needs === 'technician_id'" v-model="inputs[a.name]">
+                <option value="">Select technician…</option>
+                <option v-for="t in users.forRole('technician')" :key="t.id" :value="t.id">
+                    {{ t.name }}
+                </option>
+            </select>
+            <input v-else-if="a.needs" v-model="inputs[a.name]" :placeholder="placeholderFor(a)" />
             <button>{{ a.label }}</button>
         </form>
     </div>

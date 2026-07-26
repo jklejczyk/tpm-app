@@ -1,4 +1,5 @@
 import { http } from './http'
+import type { Wrapped } from '@/types/api'
 import type {
     Paginated,
     SortDirection,
@@ -7,10 +8,6 @@ import type {
     WorkOrderReason,
     WorkOrderSortField,
 } from '@/types/workOrder'
-
-interface Wrapped<T> {
-    data: T
-}
 
 export interface ListParams {
     page?: number

@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Factories\ActorFactory;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Api\V1\AssignWorkOrderRequest;
-use App\Http\Requests\Api\V1\HoldWorkOrderRequest;
-use App\Http\Requests\Api\V1\ListWorkOrdersRequest;
-use App\Http\Requests\Api\V1\ReportWorkOrderRequest;
-use App\Http\Requests\Api\V1\ResolveWorkOrderRequest;
+use App\Http\Requests\Api\V1\WorkOrder\AssignWorkOrderRequest;
+use App\Http\Requests\Api\V1\WorkOrder\HoldWorkOrderRequest;
+use App\Http\Requests\Api\V1\WorkOrder\ListWorkOrdersRequest;
+use App\Http\Requests\Api\V1\WorkOrder\ReportWorkOrderRequest;
+use App\Http\Requests\Api\V1\WorkOrder\ResolveWorkOrderRequest;
 use App\Http\Resources\Api\V1\WorkOrderResource;
 use App\Models\User;
 use App\Queries\WorkOrderQuery;
