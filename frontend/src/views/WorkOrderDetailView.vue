@@ -3,7 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useWorkOrdersStore } from '@/stores/workOrders'
 import { useAuthStore } from '@/stores/auth'
-import { LIFECYCLE, REASON_LABEL, STATUS_LABEL } from '@/types/workOrder'
+import { LIFECYCLE, REASON_LABEL, STATUS_LABEL } from '@/constants/workOrder'
 import { allowedTransitions, type AllowedTransition } from '@/domain/transitions'
 
 const props = defineProps<{ id: string }>()

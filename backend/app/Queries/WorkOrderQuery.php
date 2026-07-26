@@ -39,7 +39,7 @@ final class WorkOrderQuery
         }
 
         return $query
-            ->orderBy('work_orders.id') // deterministic tiebreaker so pages never overlap
+            ->orderBy('work_orders.id')
             ->paginate($perPage);
     }
 }

@@ -2,12 +2,8 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useWorkOrdersStore } from '@/stores/workOrders'
-import {
-    REASON_LABEL,
-    STATUS_LABEL,
-    type WorkOrderReason,
-    type WorkOrderSortField,
-} from '@/types/workOrder'
+import { REASON_LABEL, STATUS_LABEL } from '@/constants/workOrder'
+import type { WorkOrderReason, WorkOrderSortField } from '@/types/workOrder'
 
 const store = useWorkOrdersStore()
 const router = useRouter()
