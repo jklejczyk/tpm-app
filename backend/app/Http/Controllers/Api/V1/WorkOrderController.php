@@ -17,6 +17,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Str;
+use Psr\Clock\ClockInterface;
 use Tpm\Shared\MachineId;
 use Tpm\Shared\UserId;
 use Tpm\Shared\WorkOrderId;
@@ -31,6 +32,7 @@ final class WorkOrderController extends Controller
         private readonly ActorFactory $actors,
         private readonly WorkOrderDataFactory $data,
         private readonly WorkOrderQuery $query,
+        private readonly ClockInterface $clock,
     ) {}
 
     public function index(ListWorkOrdersRequest $request): AnonymousResourceCollection
@@ -55,7 +57,7 @@ final class WorkOrderController extends Controller
             new MachineId((string) $request->string('machine_id')),
             WorkOrderReason::from((string) $request->string('reason')),
             new UserId((string) $request->user()->id),
-            now()->toDateTimeImmutable(),
+            $this->clock->now(),
         );
 
         $this->repository->save($workOrder);

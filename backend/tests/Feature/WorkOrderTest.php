@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\Sanctum;
+use Psr\Clock\ClockInterface;
 
 /**
  * @param  array<string, string>  $overrides
@@ -281,6 +282,25 @@ it('includes the reported timestamp on the list', function () {
     $response = $this->getJson('/api/v1/work-orders')->assertOk();
 
     expect($response->json('data.0.reportedAt'))->not->toBeNull();
+});
+
+it('stamps the report time from the injected clock', function () {
+    $instant = new DateTimeImmutable('2026-01-01T10:00:00+00:00');
+    $this->app->bind(ClockInterface::class, fn () => new class($instant) implements ClockInterface
+    {
+        public function __construct(private DateTimeImmutable $instant) {}
+
+        public function now(): DateTimeImmutable
+        {
+            return $this->instant;
+        }
+    });
+
+    Sanctum::actingAs(User::factory()->manager()->create());
+
+    $this->postJson('/api/v1/work-orders', ['machine_id' => 'm-1', 'reason' => 'breakdown'])
+        ->assertCreated()
+        ->assertJsonPath('data.reportedAt', '2026-01-01T10:00:00+00:00');
 });
 
 it('includes the reported timestamp on a single work order', function () {

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d3bd5e9889e16cf5a0071cafa15b4d08",
+    "content-hash": "d2230f16519d308aece84e032451f4f4",
     "packages": [
         {
             "name": "brick/math",
@@ -1063,7 +1063,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../tpm-core",
-                "reference": "5364e4223ba00ab8764b09f92b4ded02b1b9ddff"
+                "reference": "37260dde523fee914afbc30056efdc4d5b031b63"
             },
             "require": {
                 "php": "^8.3"

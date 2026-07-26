@@ -13,7 +13,8 @@
         "jklejczyk/tpm-core": "dev-main",
         "laravel/framework": "^13.8",
         "laravel/sanctum": "^4.0",
-        "laravel/tinker": "^3.0"
+        "laravel/tinker": "^3.0",
+        "psr/clock": "^1.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

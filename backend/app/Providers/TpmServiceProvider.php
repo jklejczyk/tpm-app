@@ -4,9 +4,11 @@ namespace App\Providers;
 
 use App\Exceptions\WorkOrderNotFound;
 use App\Repositories\EloquentWorkOrderRepository;
+use App\Support\SystemClock;
 use App\Support\UserDirectory;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Psr\Clock\ClockInterface;
 use Tpm\Shared\WorkOrderId;
 use Tpm\WorkOrder\WorkOrder;
 use Tpm\WorkOrder\WorkOrderRepository;
@@ -18,6 +20,7 @@ final class TpmServiceProvider extends ServiceProvider
      */
     public array $bindings = [
         WorkOrderRepository::class => EloquentWorkOrderRepository::class,
+        ClockInterface::class => SystemClock::class,
     ];
 
     public function register(): void
