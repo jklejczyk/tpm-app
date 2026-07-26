@@ -10,7 +10,6 @@ use Tpm\WorkOrder\WorkOrder;
 use Tpm\WorkOrder\WorkOrderReason;
 use Tpm\WorkOrder\WorkOrderStatus;
 
-
 final class WorkOrderMapper
 {
     public function toEntity(WorkOrderModel $row): WorkOrder
@@ -21,7 +20,7 @@ final class WorkOrderMapper
             WorkOrderStatus::from($row->status),
             WorkOrderReason::from($row->reason),
             new UserId($row->reported_by),
-            ($row->reported_at ?? now())->toDateTimeImmutable(),
+            $row->reported_at->toDateTimeImmutable(),
             $row->assigned_to !== null ? new UserId($row->assigned_to) : null,
             $row->resolution,
             $row->hold_reason,
