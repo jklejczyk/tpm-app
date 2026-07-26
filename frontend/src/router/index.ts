@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { workOrderRoutes } from '@/router/routes/workOrders'
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -9,17 +10,7 @@ const router = createRouter({
             name: 'login',
             component: () => import('@/views/LoginView.vue'),
         },
-        {
-            path: '/',
-            name: 'work-orders',
-            component: () => import('@/views/WorkOrdersView.vue'),
-        },
-        {
-            path: '/work-orders/:id',
-            name: 'work-order',
-            component: () => import('@/views/WorkOrderDetailView.vue'),
-            props: true,
-        },
+        ...workOrderRoutes,
     ],
 })
 
