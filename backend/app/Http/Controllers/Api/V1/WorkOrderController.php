@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Factories\ActorFactory;
-use App\Factories\WorkOrderDataFactory;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\AssignWorkOrderRequest;
 use App\Http\Requests\Api\V1\HoldWorkOrderRequest;
@@ -30,24 +29,19 @@ final class WorkOrderController extends Controller
     public function __construct(
         private readonly WorkOrderRepository $repository,
         private readonly ActorFactory $actors,
-        private readonly WorkOrderDataFactory $data,
         private readonly WorkOrderQuery $query,
         private readonly ClockInterface $clock,
     ) {}
 
     public function index(ListWorkOrdersRequest $request): AnonymousResourceCollection
     {
-        $page = $this->query->paginate(
-            $request->perPage(),
-            $request->sort(),
-            $request->direction(),
+        return WorkOrderResource::collection(
+            $this->query->paginate(
+                $request->perPage(),
+                $request->sort(),
+                $request->direction(),
+            ),
         );
-
-        $page->setCollection(
-            collect($this->data->fromModels($page->items())),
-        );
-
-        return WorkOrderResource::collection($page);
     }
 
     public function report(ReportWorkOrderRequest $request): JsonResponse
@@ -62,12 +56,14 @@ final class WorkOrderController extends Controller
 
         $this->repository->save($workOrder);
 
-        return WorkOrderResource::make($this->data->fromEntity($workOrder))->response()->setStatusCode(201);
+        return WorkOrderResource::make($this->query->find($workOrder->id()->value))
+            ->response()
+            ->setStatusCode(201);
     }
 
-    public function show(WorkOrder $workOrder): WorkOrderResource
+    public function show(string $id): WorkOrderResource
     {
-        return WorkOrderResource::make($this->data->fromEntity($workOrder));
+        return WorkOrderResource::make($this->query->find($id));
     }
 
     public function assign(AssignWorkOrderRequest $request, WorkOrder $workOrder): WorkOrderResource
@@ -82,7 +78,7 @@ final class WorkOrderController extends Controller
 
         $this->repository->save($workOrder);
 
-        return WorkOrderResource::make($this->data->fromEntity($workOrder));
+        return WorkOrderResource::make($this->query->find($workOrder->id()->value));
     }
 
     public function start(Request $request, WorkOrder $workOrder): WorkOrderResource
@@ -91,7 +87,7 @@ final class WorkOrderController extends Controller
 
         $this->repository->save($workOrder);
 
-        return WorkOrderResource::make($this->data->fromEntity($workOrder));
+        return WorkOrderResource::make($this->query->find($workOrder->id()->value));
     }
 
     public function hold(HoldWorkOrderRequest $request, WorkOrder $workOrder): WorkOrderResource
@@ -103,7 +99,7 @@ final class WorkOrderController extends Controller
 
         $this->repository->save($workOrder);
 
-        return WorkOrderResource::make($this->data->fromEntity($workOrder));
+        return WorkOrderResource::make($this->query->find($workOrder->id()->value));
     }
 
     public function resume(Request $request, WorkOrder $workOrder): WorkOrderResource
@@ -112,7 +108,7 @@ final class WorkOrderController extends Controller
 
         $this->repository->save($workOrder);
 
-        return WorkOrderResource::make($this->data->fromEntity($workOrder));
+        return WorkOrderResource::make($this->query->find($workOrder->id()->value));
     }
 
     public function resolve(ResolveWorkOrderRequest $request, WorkOrder $workOrder): WorkOrderResource
@@ -124,7 +120,7 @@ final class WorkOrderController extends Controller
 
         $this->repository->save($workOrder);
 
-        return WorkOrderResource::make($this->data->fromEntity($workOrder));
+        return WorkOrderResource::make($this->query->find($workOrder->id()->value));
     }
 
     public function close(Request $request, WorkOrder $workOrder): WorkOrderResource
@@ -133,6 +129,6 @@ final class WorkOrderController extends Controller
 
         $this->repository->save($workOrder);
 
-        return WorkOrderResource::make($this->data->fromEntity($workOrder));
+        return WorkOrderResource::make($this->query->find($workOrder->id()->value));
     }
 }

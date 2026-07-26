@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use App\Models\WorkOrderModel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -30,8 +31,8 @@ class WorkOrderModelFactory extends Factory
             'machine_id' => (string) Str::ulid(),
             'status' => $status->value,
             'reason' => fake()->randomElement(WorkOrderReason::cases())->value,
-            'reported_by' => (string) Str::ulid(),
-            'assigned_to' => $isAssigned ? (string) Str::ulid() : null,
+            'reported_by' => User::factory(),
+            'assigned_to' => $isAssigned ? User::factory() : null,
             'resolution' => $isResolved ? fake()->sentence() : null,
             'hold_reason' => $status === WorkOrderStatus::OnHold ? fake()->sentence() : null,
         ];

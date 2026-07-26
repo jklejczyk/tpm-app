@@ -19,9 +19,9 @@ final class WorkOrderMapper
             new MachineId($row->machine_id),
             WorkOrderStatus::from($row->status),
             WorkOrderReason::from($row->reason),
-            new UserId($row->reported_by),
+            new UserId((string) $row->reported_by),
             $row->reported_at->toDateTimeImmutable(),
-            $row->assigned_to !== null ? new UserId($row->assigned_to) : null,
+            $row->assigned_to !== null ? new UserId((string) $row->assigned_to) : null,
             $row->resolution,
             $row->hold_reason,
         );

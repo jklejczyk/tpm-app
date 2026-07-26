@@ -5,7 +5,6 @@ namespace App\Providers;
 use App\Exceptions\WorkOrderNotFound;
 use App\Repositories\EloquentWorkOrderRepository;
 use App\Support\SystemClock;
-use App\Support\UserDirectory;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Psr\Clock\ClockInterface;
@@ -22,11 +21,6 @@ final class TpmServiceProvider extends ServiceProvider
         WorkOrderRepository::class => EloquentWorkOrderRepository::class,
         ClockInterface::class => SystemClock::class,
     ];
-
-    public function register(): void
-    {
-        $this->app->scoped(UserDirectory::class);
-    }
 
     public function boot(): void
     {

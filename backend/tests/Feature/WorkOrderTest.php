@@ -199,8 +199,9 @@ it('batches user-name lookups on the list instead of querying per row', function
         ->assertOk()
         ->assertJsonCount(3, 'data');
 
-    // One batched lookup for every referenced user — not one query per work order.
-    expect($userQueries)->toBeLessThanOrEqual(1);
+    // Eager loading batches reporters and assignees into two constant queries,
+    // regardless of how many work orders the page holds — never one per row.
+    expect($userQueries)->toBeLessThanOrEqual(2);
 });
 
 it('paginates the list', function () {

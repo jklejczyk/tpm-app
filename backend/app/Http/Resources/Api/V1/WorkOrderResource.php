@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources\Api\V1;
 
-use App\Data\WorkOrderData;
+use App\Models\WorkOrderModel;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -13,22 +13,21 @@ class WorkOrderResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        /** @var WorkOrderData $data */
-        $data = $this->resource;
-        $workOrder = $data->workOrder;
+        /** @var WorkOrderModel $wo */
+        $wo = $this->resource;
 
         return [
-            'id' => $workOrder->id()->value,
-            'machineId' => $workOrder->machineId()->value,
-            'status' => $workOrder->status()->value,
-            'reason' => $workOrder->reason()->value,
-            'reportedBy' => $workOrder->reportedBy()->value,
-            'reportedByName' => $data->reportedByName,
-            'assignedTo' => $workOrder->assignedTo()?->value,
-            'assignedToName' => $data->assignedToName,
-            'resolution' => $workOrder->resolution(),
-            'holdReason' => $workOrder->holdReason(),
-            'reportedAt' => $workOrder->reportedAt()->format(\DateTimeInterface::ATOM),
+            'id' => $wo->id,
+            'machineId' => $wo->machine_id,
+            'status' => $wo->status,
+            'reason' => $wo->reason,
+            'reportedBy' => (string) $wo->reported_by,
+            'reportedByName' => $wo->reporter?->name,
+            'assignedTo' => $wo->assigned_to !== null ? (string) $wo->assigned_to : null,
+            'assignedToName' => $wo->assignee?->name,
+            'resolution' => $wo->resolution,
+            'holdReason' => $wo->hold_reason,
+            'reportedAt' => $wo->reported_at->format(\DateTimeInterface::ATOM),
         ];
     }
 }
