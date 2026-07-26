@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Exceptions\WorkOrderNotFound;
 use App\Factories\ActorFactory;
 use App\Factories\WorkOrderDataFactory;
 use App\Http\Controllers\Controller;
@@ -64,19 +63,13 @@ final class WorkOrderController extends Controller
         return WorkOrderResource::make($this->data->fromEntity($workOrder))->response()->setStatusCode(201);
     }
 
-    public function show(string $id): WorkOrderResource
+    public function show(WorkOrder $workOrder): WorkOrderResource
     {
-        $workOrderId = new WorkOrderId($id);
-        $workOrder = $this->repository->findById($workOrderId) ?? throw WorkOrderNotFound::withId($workOrderId);
-
         return WorkOrderResource::make($this->data->fromEntity($workOrder));
     }
 
-    public function assign(AssignWorkOrderRequest $request, string $id): WorkOrderResource
+    public function assign(AssignWorkOrderRequest $request, WorkOrder $workOrder): WorkOrderResource
     {
-        $workOrderId = new WorkOrderId($id);
-        $workOrder = $this->repository->findById($workOrderId) ?? throw WorkOrderNotFound::withId($workOrderId);
-
         $technician = User::query()->findOrFail((string) $request->string('technician_id'));
 
         $workOrder->assign(
@@ -90,11 +83,8 @@ final class WorkOrderController extends Controller
         return WorkOrderResource::make($this->data->fromEntity($workOrder));
     }
 
-    public function start(Request $request, string $id): WorkOrderResource
+    public function start(Request $request, WorkOrder $workOrder): WorkOrderResource
     {
-        $workOrderId = new WorkOrderId($id);
-        $workOrder = $this->repository->findById($workOrderId) ?? throw WorkOrderNotFound::withId($workOrderId);
-
         $workOrder->start($this->actors->fromUser($request->user()));
 
         $this->repository->save($workOrder);
@@ -102,11 +92,8 @@ final class WorkOrderController extends Controller
         return WorkOrderResource::make($this->data->fromEntity($workOrder));
     }
 
-    public function hold(HoldWorkOrderRequest $request, string $id): WorkOrderResource
+    public function hold(HoldWorkOrderRequest $request, WorkOrder $workOrder): WorkOrderResource
     {
-        $workOrderId = new WorkOrderId($id);
-        $workOrder = $this->repository->findById($workOrderId) ?? throw WorkOrderNotFound::withId($workOrderId);
-
         $workOrder->hold(
             $this->actors->fromUser($request->user()),
             (string) $request->string('reason'),
@@ -117,11 +104,8 @@ final class WorkOrderController extends Controller
         return WorkOrderResource::make($this->data->fromEntity($workOrder));
     }
 
-    public function resume(Request $request, string $id): WorkOrderResource
+    public function resume(Request $request, WorkOrder $workOrder): WorkOrderResource
     {
-        $workOrderId = new WorkOrderId($id);
-        $workOrder = $this->repository->findById($workOrderId) ?? throw WorkOrderNotFound::withId($workOrderId);
-
         $workOrder->resume($this->actors->fromUser($request->user()));
 
         $this->repository->save($workOrder);
@@ -129,11 +113,8 @@ final class WorkOrderController extends Controller
         return WorkOrderResource::make($this->data->fromEntity($workOrder));
     }
 
-    public function resolve(ResolveWorkOrderRequest $request, string $id): WorkOrderResource
+    public function resolve(ResolveWorkOrderRequest $request, WorkOrder $workOrder): WorkOrderResource
     {
-        $workOrderId = new WorkOrderId($id);
-        $workOrder = $this->repository->findById($workOrderId) ?? throw WorkOrderNotFound::withId($workOrderId);
-
         $workOrder->resolve(
             $this->actors->fromUser($request->user()),
             (string) $request->string('resolution'),
@@ -144,11 +125,8 @@ final class WorkOrderController extends Controller
         return WorkOrderResource::make($this->data->fromEntity($workOrder));
     }
 
-    public function close(Request $request, string $id): WorkOrderResource
+    public function close(Request $request, WorkOrder $workOrder): WorkOrderResource
     {
-        $workOrderId = new WorkOrderId($id);
-        $workOrder = $this->repository->findById($workOrderId) ?? throw WorkOrderNotFound::withId($workOrderId);
-
         $workOrder->close($this->actors->fromUser($request->user()));
 
         $this->repository->save($workOrder);
