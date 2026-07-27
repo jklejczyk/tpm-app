@@ -8,14 +8,18 @@ const store = useWorkOrdersStore()
 const machineId = ref('')
 const reason = ref<WorkOrderReason>('breakdown')
 const error = ref<string | null>(null)
+const submitting = ref(false)
 
 async function submit() {
     error.value = null
+    submitting.value = true
     try {
         await store.report(machineId.value, reason.value)
         machineId.value = ''
     } catch (e) {
         error.value = (e as Error).message
+    } finally {
+        submitting.value = false
     }
 }
 </script>
@@ -28,7 +32,7 @@ async function submit() {
             <option value="inspection">Inspection</option>
             <option value="operator_report">Operator report</option>
         </select>
-        <button>Report fault</button>
+        <button :disabled="submitting">{{ submitting ? 'Reporting…' : 'Report fault' }}</button>
     </form>
     <p v-if="error" class="error">{{ error }}</p>
 </template>

@@ -11,6 +11,7 @@ const users = useUsersStore()
 
 const error = ref<string | null>(null)
 const inputs = ref<Record<string, string>>({})
+const submitting = ref<string | null>(null)
 
 const PLACEHOLDER: Partial<Record<NonNullable<AllowedTransition['needs']>, string>> = {
     reason: 'hold reason',
@@ -46,11 +47,14 @@ async function run(action: AllowedTransition) {
         payload[action.needs] = value
     }
 
+    submitting.value = action.name
     try {
         await store.applyTransition(props.id, action.name, payload)
         inputs.value[action.name] = ''
     } catch (e) {
         error.value = (e as Error).message
+    } finally {
+        submitting.value = null
     }
 }
 </script>
@@ -66,7 +70,9 @@ async function run(action: AllowedTransition) {
                 </option>
             </select>
             <input v-else-if="a.needs" v-model="inputs[a.name]" :placeholder="placeholderFor(a)" />
-            <button>{{ a.label }}</button>
+            <button :disabled="submitting !== null">
+                {{ submitting === a.name ? '…' : a.label }}
+            </button>
         </form>
     </div>
     <p v-else>No actions available for your role in this state.</p>
