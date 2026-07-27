@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useWorkOrdersStore } from '@/stores/workOrders'
+import { REASON_LABEL } from '@/constants/workOrder'
 import type { WorkOrderReason } from '@/types/workOrder'
 
 const store = useWorkOrdersStore()
@@ -28,9 +29,9 @@ async function submit() {
     <form class="toolbar" @submit.prevent="submit">
         <input v-model="machineId" placeholder="machine id (e.g. m-1)" />
         <select v-model="reason">
-            <option value="breakdown">Breakdown</option>
-            <option value="inspection">Inspection</option>
-            <option value="operator_report">Operator report</option>
+            <option v-for="(label, value) in REASON_LABEL" :key="value" :value="value">
+                {{ label }}
+            </option>
         </select>
         <button :disabled="submitting">{{ submitting ? 'Reporting…' : 'Report fault' }}</button>
     </form>
