@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useWorkOrdersStore } from '@/stores/workOrders'
 import { useUsersStore } from '@/stores/users'
 import type { AllowedTransition } from '@/domain/transitions'
@@ -22,17 +22,21 @@ function placeholderFor(action: AllowedTransition): string {
     return action.needs ? (PLACEHOLDER[action.needs] ?? '') : ''
 }
 
-onMounted(() => {
-    props.actions.forEach((a) => {
-        if (a.needs && inputs.value[a.name] === undefined) {
-            inputs.value[a.name] = ''
-        }
-    })
+watch(
+    () => props.actions,
+    (actions) => {
+        actions.forEach((a) => {
+            if (a.needs && inputs.value[a.name] === undefined) {
+                inputs.value[a.name] = ''
+            }
+        })
 
-    if (props.actions.some((a) => a.needs === 'technician_id')) {
-        void users.fetch('technician')
-    }
-})
+        if (actions.some((a) => a.needs === 'technician_id')) {
+            void users.fetch('technician')
+        }
+    },
+    { immediate: true },
+)
 
 async function run(action: AllowedTransition) {
     error.value = null
