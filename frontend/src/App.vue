@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { RouterView, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { ROLE_LABEL } from '@/constants/user'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -14,7 +15,9 @@ async function logout() {
 <template>
     <header v-if="auth.isAuthenticated" class="topbar">
         <strong>TPM</strong>
-        <span class="who">{{ auth.user?.name }} - {{ auth.user?.role }}</span>
+        <span class="who"
+            >{{ auth.user?.name }} - {{ auth.user ? ROLE_LABEL[auth.user.role] : '' }}</span
+        >
         <button class="ghost" @click="logout">Sign out</button>
     </header>
 
