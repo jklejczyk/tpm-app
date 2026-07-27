@@ -11,12 +11,12 @@ export interface WorkOrder {
     status: WorkOrderStatus
     reason: WorkOrderReason
     reportedBy: string
-    reportedByName: string | null
+    reportedByName: string
     assignedTo: string | null
     assignedToName: string | null
     resolution: string | null
     holdReason: string | null
-    reportedAt: string | null
+    reportedAt: string
 }
 
 export type SortDirection = 'asc' | 'desc'

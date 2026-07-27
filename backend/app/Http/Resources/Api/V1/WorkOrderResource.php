@@ -22,7 +22,7 @@ class WorkOrderResource extends JsonResource
             'status' => $wo->status,
             'reason' => $wo->reason,
             'reportedBy' => (string) $wo->reported_by,
-            'reportedByName' => $wo->reporter?->name,
+            'reportedByName' => $wo->reporter->name,
             'assignedTo' => $wo->assigned_to !== null ? (string) $wo->assigned_to : null,
             'assignedToName' => $wo->assignee?->name,
             'resolution' => $wo->resolution,

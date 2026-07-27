@@ -37,7 +37,7 @@ const actions = computed<AllowedTransition[]>(() => {
         <p><StatusPill :status="store.current.status" /></p>
         <p class="mono">
             {{ store.current.machineId }} · {{ REASON_LABEL[store.current.reason] }} · reported by
-            {{ store.current.reportedByName ?? store.current.reportedBy }}
+            {{ store.current.reportedByName }}
         </p>
 
         <WorkOrderLifecycle :current="store.current.status" />
