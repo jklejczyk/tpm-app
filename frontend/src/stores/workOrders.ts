@@ -77,6 +77,7 @@ export const useWorkOrdersStore = defineStore('workOrders', () => {
 
     async function report(machineId: string, reason: WorkOrderReason): Promise<void> {
         await woApi.reportWorkOrder(machineId, reason)
+        page.value = 1
         await fetchList()
     }
 
