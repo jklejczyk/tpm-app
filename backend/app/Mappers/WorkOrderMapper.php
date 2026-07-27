@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repositories;
+namespace App\Mappers;
 
 use App\Models\WorkOrderModel;
 use Tpm\Shared\MachineId;

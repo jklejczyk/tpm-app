@@ -50,7 +50,7 @@ final class WorkOrderController extends Controller
             new WorkOrderId((string) Str::ulid()),
             new MachineId((string) $request->string('machine_id')),
             WorkOrderReason::from((string) $request->string('reason')),
-            new UserId((string) $request->user()->id),
+            new UserId((string) $this->currentUser($request)->id),
             $this->clock->now(),
         );
 
@@ -71,7 +71,7 @@ final class WorkOrderController extends Controller
         $technician = User::query()->findOrFail((string) $request->string('technician_id'));
 
         $workOrder->assign(
-            $this->actors->fromUser($request->user()),
+            $this->actors->fromUser($this->currentUser($request)),
             new UserId((string) $technician->id),
             $technician->role,
         );
@@ -83,7 +83,7 @@ final class WorkOrderController extends Controller
 
     public function start(Request $request, WorkOrder $workOrder): WorkOrderResource
     {
-        $workOrder->start($this->actors->fromUser($request->user()));
+        $workOrder->start($this->actors->fromUser($this->currentUser($request)));
 
         $this->repository->save($workOrder);
 
@@ -93,7 +93,7 @@ final class WorkOrderController extends Controller
     public function hold(HoldWorkOrderRequest $request, WorkOrder $workOrder): WorkOrderResource
     {
         $workOrder->hold(
-            $this->actors->fromUser($request->user()),
+            $this->actors->fromUser($this->currentUser($request)),
             (string) $request->string('reason'),
         );
 
@@ -104,7 +104,7 @@ final class WorkOrderController extends Controller
 
     public function resume(Request $request, WorkOrder $workOrder): WorkOrderResource
     {
-        $workOrder->resume($this->actors->fromUser($request->user()));
+        $workOrder->resume($this->actors->fromUser($this->currentUser($request)));
 
         $this->repository->save($workOrder);
 
@@ -114,7 +114,7 @@ final class WorkOrderController extends Controller
     public function resolve(ResolveWorkOrderRequest $request, WorkOrder $workOrder): WorkOrderResource
     {
         $workOrder->resolve(
-            $this->actors->fromUser($request->user()),
+            $this->actors->fromUser($this->currentUser($request)),
             (string) $request->string('resolution'),
         );
 
@@ -125,7 +125,7 @@ final class WorkOrderController extends Controller
 
     public function close(Request $request, WorkOrder $workOrder): WorkOrderResource
     {
-        $workOrder->close($this->actors->fromUser($request->user()));
+        $workOrder->close($this->actors->fromUser($this->currentUser($request)));
 
         $this->repository->save($workOrder);
 

@@ -36,8 +36,11 @@ final class ListWorkOrdersRequest extends FormRequest
         return (string) $this->query('sort', 'reported_at');
     }
 
+    /**
+     * @return 'asc'|'desc'
+     */
     public function direction(): string
     {
-        return (string) $this->query('direction', 'desc');
+        return $this->query('direction') === 'asc' ? 'asc' : 'desc';
     }
 }

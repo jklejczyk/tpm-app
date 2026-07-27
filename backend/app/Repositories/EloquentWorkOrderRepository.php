@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Mappers\WorkOrderMapper;
 use App\Models\WorkOrderModel;
 use Tpm\Shared\WorkOrderId;
 use Tpm\WorkOrder\WorkOrder;

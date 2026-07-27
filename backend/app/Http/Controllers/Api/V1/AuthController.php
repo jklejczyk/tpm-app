@@ -21,7 +21,7 @@ final class AuthController extends Controller
 
         $request->session()->regenerate();
 
-        $user = $request->user();
+        $user = $this->currentUser($request);
 
         return response()->json([
             'user' => [

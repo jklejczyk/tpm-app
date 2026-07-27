@@ -23,7 +23,8 @@ final class WorkOrderQuery
     }
 
     /**
-     * @return LengthAwarePaginator<WorkOrderModel>
+     * @param  'asc'|'desc'  $direction
+     * @return LengthAwarePaginator<int, WorkOrderModel>
      */
     public function paginate(int $perPage, string $sort, string $direction): LengthAwarePaginator
     {
