@@ -6,9 +6,27 @@ import type { AuthUser } from '@/types/user'
 
 const USER_KEY = 'tpm.user'
 
+function isAuthUser(value: unknown): value is AuthUser {
+    if (typeof value !== 'object' || value === null) return false
+    const u = value as Record<string, unknown>
+    return typeof u.id === 'string' && typeof u.name === 'string' && typeof u.role === 'string'
+}
+
+function readStoredUser(): AuthUser | null {
+    const raw = localStorage.getItem(USER_KEY)
+    if (raw === null) return null
+    try {
+        const parsed: unknown = JSON.parse(raw)
+        if (isAuthUser(parsed)) return parsed
+    } catch {
+        // corrupted JSON
+    }
+    localStorage.removeItem(USER_KEY)
+    return null
+}
+
 export const useAuthStore = defineStore('auth', () => {
-    const saved = localStorage.getItem(USER_KEY)
-    const user = ref<AuthUser | null>(saved ? (JSON.parse(saved) as AuthUser) : null)
+    const user = ref<AuthUser | null>(readStoredUser())
 
     const isAuthenticated = computed(() => user.value !== null && getToken() !== null)
 
