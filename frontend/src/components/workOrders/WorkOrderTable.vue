@@ -18,7 +18,15 @@ const emit = defineEmits<{
 }>()
 
 const SKELETON_ROWS = 10
-const COLUMNS = 6
+
+const COLUMNS: { label: string; sort?: WorkOrderSortField }[] = [
+    { label: 'Status', sort: 'status' },
+    { label: 'ID' },
+    { label: 'Machine', sort: 'machine_id' },
+    { label: 'Reason', sort: 'reason' },
+    { label: 'Assigned to', sort: 'assigned_to' },
+    { label: 'Reported', sort: 'reported_at' },
+]
 
 function sortIndicator(field: WorkOrderSortField): string {
     if (props.sort !== field) return ''
@@ -30,34 +38,26 @@ function sortIndicator(field: WorkOrderSortField): string {
     <table>
         <thead>
             <tr>
-                <th class="sortable" @click="emit('sort', 'status')">
-                    Status{{ sortIndicator('status') }}
-                </th>
-                <th>ID</th>
-                <th class="sortable" @click="emit('sort', 'machine_id')">
-                    Machine{{ sortIndicator('machine_id') }}
-                </th>
-                <th class="sortable" @click="emit('sort', 'reason')">
-                    Reason{{ sortIndicator('reason') }}
-                </th>
-                <th class="sortable" @click="emit('sort', 'assigned_to')">
-                    Assigned to{{ sortIndicator('assigned_to') }}
-                </th>
-                <th class="sortable" @click="emit('sort', 'reported_at')">
-                    Reported{{ sortIndicator('reported_at') }}
+                <th
+                    v-for="col in COLUMNS"
+                    :key="col.label"
+                    :class="{ sortable: col.sort }"
+                    @click="col.sort && emit('sort', col.sort)"
+                >
+                    {{ col.label }}{{ col.sort ? sortIndicator(col.sort) : '' }}
                 </th>
             </tr>
         </thead>
 
         <tbody v-if="loading" aria-hidden="true">
             <tr v-for="n in SKELETON_ROWS" :key="`skeleton-${n}`" class="skeleton-row">
-                <td v-for="c in COLUMNS" :key="c"><span class="skeleton"></span></td>
+                <td v-for="c in COLUMNS.length" :key="c"><span class="skeleton"></span></td>
             </tr>
         </tbody>
 
         <tbody v-else-if="total === 0">
             <tr>
-                <td :colspan="COLUMNS" class="empty">
+                <td :colspan="COLUMNS.length" class="empty">
                     No work orders. Report the first fault above.
                 </td>
             </tr>
