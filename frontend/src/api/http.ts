@@ -4,6 +4,7 @@ const BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8082/api/v1'
 const TOKEN_KEY = 'tpm.token'
 
 let token: string | null = localStorage.getItem(TOKEN_KEY)
+let onUnauthorized: (() => void) | null = null
 
 export function setToken(value: string | null): void {
     token = value
@@ -13,6 +14,10 @@ export function setToken(value: string | null): void {
 
 export function getToken(): string | null {
     return token
+}
+
+export function setUnauthorizedHandler(handler: () => void): void {
+    onUnauthorized = handler
 }
 
 export class ApiError extends Error {
@@ -48,6 +53,8 @@ http.interceptors.response.use(
     (response) => response,
     (error: AxiosError<{ message?: string }>) => {
         const status = error.response?.status ?? 0
+        // 401 only reaches here for a rejected token — bad logins return 422.
+        if (status === 401 && token !== null) onUnauthorized?.()
         const message = error.response?.data?.message ?? error.message
         return Promise.reject(new ApiError(status, message))
     },

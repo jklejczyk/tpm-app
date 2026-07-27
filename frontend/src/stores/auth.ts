@@ -19,16 +19,20 @@ export const useAuthStore = defineStore('auth', () => {
         localStorage.setItem(USER_KEY, JSON.stringify(res.user))
     }
 
+    function clearSession(): void {
+        setToken(null)
+        user.value = null
+        localStorage.removeItem(USER_KEY)
+    }
+
     async function logout(): Promise<void> {
         try {
             await authApi.logout()
         } catch {
             // silent
         }
-        setToken(null)
-        user.value = null
-        localStorage.removeItem(USER_KEY)
+        clearSession()
     }
 
-    return { user, isAuthenticated, login, logout }
+    return { user, isAuthenticated, login, logout, clearSession }
 })
