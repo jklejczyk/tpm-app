@@ -71,7 +71,7 @@ async function run(action: AllowedTransition) {
             </select>
             <input v-else-if="a.needs" v-model="inputs[a.name]" :placeholder="placeholderFor(a)" />
             <button :disabled="submitting !== null">
-                {{ submitting === a.name ? '…' : a.label }}
+                {{ submitting === a.name ? a.label + 'ing…' : a.label }}
             </button>
         </form>
     </div>

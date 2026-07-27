@@ -1,14 +1,10 @@
-import { http } from './http'
+import { csrf, http } from './http'
 import type { AuthUser } from '@/types/user'
 
-export interface LoginResponse {
-    token: string
-    user: AuthUser
-}
-
-export async function login(email: string, password: string): Promise<LoginResponse> {
-    const { data } = await http.post<LoginResponse>('/login', { email, password })
-    return data
+export async function login(email: string, password: string): Promise<AuthUser> {
+    await csrf()
+    const { data } = await http.post<{ user: AuthUser }>('/login', { email, password })
+    return data.user
 }
 
 export async function logout(): Promise<void> {

@@ -1,20 +1,14 @@
 import axios, { AxiosError } from 'axios'
 
-const BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8082/api/v1'
-const TOKEN_KEY = 'tpm.token'
+// Derive the API host from the page host so cookies match whether the SPA is
+// opened on localhost or 127.0.0.1 (the browser treats them as distinct hosts).
+const API_PORT = 8082
+const BASE =
+    import.meta.env.VITE_API_URL ??
+    `${window.location.protocol}//${window.location.hostname}:${API_PORT}/api/v1`
+const ORIGIN = new URL(BASE).origin
 
-let token: string | null = localStorage.getItem(TOKEN_KEY)
 let onUnauthorized: (() => void) | null = null
-
-export function setToken(value: string | null): void {
-    token = value
-    if (value) localStorage.setItem(TOKEN_KEY, value)
-    else localStorage.removeItem(TOKEN_KEY)
-}
-
-export function getToken(): string | null {
-    return token
-}
 
 export function setUnauthorizedHandler(handler: () => void): void {
     onUnauthorized = handler
@@ -38,23 +32,23 @@ export function friendlyMessage(error: unknown): string {
 
 export const http = axios.create({
     baseURL: BASE,
+    withCredentials: true,
+    withXSRFToken: true,
     headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
     },
 })
 
-http.interceptors.request.use((config) => {
-    if (token) config.headers.Authorization = `Bearer ${token}`
-    return config
-})
+export function csrf(): Promise<void> {
+    return http.get('/sanctum/csrf-cookie', { baseURL: ORIGIN }).then(() => undefined)
+}
 
 http.interceptors.response.use(
     (response) => response,
     (error: AxiosError<{ message?: string }>) => {
         const status = error.response?.status ?? 0
-        // 401 only reaches here for a rejected token — bad logins return 422.
-        if (status === 401 && token !== null) onUnauthorized?.()
+        if (status === 401) onUnauthorized?.()
         const message = error.response?.data?.message ?? error.message
         return Promise.reject(new ApiError(status, message))
     },

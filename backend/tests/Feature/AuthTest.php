@@ -4,30 +4,39 @@ declare(strict_types=1);
 
 use App\Models\User;
 
-it('issues a token on valid login', function () {
+function fromSpa(): array
+{
+    return ['Origin' => 'http://localhost:5173'];
+}
+
+it('logs in with valid credentials and starts a session', function () {
     $user = User::factory()->manager()->create();
 
-    $this->postJson('/api/v1/login', ['email' => $user->email, 'password' => 'password'])
+    $this->withHeaders(fromSpa())
+        ->postJson('/api/v1/login', ['email' => $user->email, 'password' => 'password'])
         ->assertOk()
-        ->assertJsonStructure(['token', 'user' => ['id', 'name', 'role']])
+        ->assertJsonStructure(['user' => ['id', 'name', 'role']])
         ->assertJsonPath('user.role', 'manager');
+
+    $this->assertAuthenticatedAs($user);
 });
 
 it('rejects invalid credentials with 422', function () {
     $user = User::factory()->create();
 
-    $this->postJson('/api/v1/login', ['email' => $user->email, 'password' => 'wrong-password'])
+    $this->withHeaders(fromSpa())
+        ->postJson('/api/v1/login', ['email' => $user->email, 'password' => 'wrong-password'])
         ->assertStatus(422);
+
+    $this->assertGuest();
 });
 
-it('revokes the token on logout', function () {
+it('logs out an authenticated user', function () {
     $user = User::factory()->manager()->create();
-    $token = $this->postJson('/api/v1/login', ['email' => $user->email, 'password' => 'password'])
-        ->json('token');
 
-    expect($user->tokens()->count())->toBe(1);
-
-    $this->withToken($token)->postJson('/api/v1/logout')->assertOk();
-
-    expect($user->fresh()->tokens()->count())->toBe(0);
+    $this->actingAs($user)
+        ->withHeaders(fromSpa())
+        ->postJson('/api/v1/logout')
+        ->assertOk()
+        ->assertJson(['message' => 'Logged out.']);
 });

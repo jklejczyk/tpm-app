@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Laravel\Sanctum\Sanctum;
 use Psr\Clock\ClockInterface;
 
 /**
@@ -28,7 +27,7 @@ it('walks a work order through its full lifecycle', function () {
     $manager = User::factory()->manager()->create();
     $technician = User::factory()->technician()->create();
 
-    Sanctum::actingAs($manager);
+    test()->actingAs($manager);
     $id = reportWorkOrder();
 
     $this->postJson("/api/v1/work-orders/{$id}/assign", ['technician_id' => (string) $technician->id])
@@ -36,7 +35,7 @@ it('walks a work order through its full lifecycle', function () {
         ->assertJsonPath('data.status', 'assigned')
         ->assertJsonPath('data.assignedTo', (string) $technician->id);
 
-    Sanctum::actingAs($technician);
+    test()->actingAs($technician);
     $this->postJson("/api/v1/work-orders/{$id}/start")
         ->assertOk()
         ->assertJsonPath('data.status', 'in_progress');
@@ -55,7 +54,7 @@ it('walks a work order through its full lifecycle', function () {
         ->assertJsonPath('data.status', 'resolved')
         ->assertJsonPath('data.resolution', 'replaced the bearing');
 
-    Sanctum::actingAs($manager);
+    test()->actingAs($manager);
     $this->postJson("/api/v1/work-orders/{$id}/close")
         ->assertOk()
         ->assertJsonPath('data.status', 'closed');
@@ -64,7 +63,7 @@ it('walks a work order through its full lifecycle', function () {
 it('records the reporter as the authenticated user', function () {
     $operator = User::factory()->create();
 
-    Sanctum::actingAs($operator);
+    test()->actingAs($operator);
 
     $this->postJson('/api/v1/work-orders', ['machine_id' => 'm-1', 'reason' => 'breakdown'])
         ->assertCreated()
@@ -75,7 +74,7 @@ it('forbids an operator from assigning a work order', function () {
     $operator = User::factory()->create();
     $technician = User::factory()->technician()->create();
 
-    Sanctum::actingAs($operator);
+    test()->actingAs($operator);
     $id = reportWorkOrder();
 
     $this->postJson("/api/v1/work-orders/{$id}/assign", ['technician_id' => (string) $technician->id])
@@ -86,7 +85,7 @@ it('rejects assigning a work order to a non-technician with 422', function () {
     $manager = User::factory()->manager()->create();
     $operator = User::factory()->create();
 
-    Sanctum::actingAs($manager);
+    test()->actingAs($manager);
     $id = reportWorkOrder();
 
     $this->postJson("/api/v1/work-orders/{$id}/assign", ['technician_id' => (string) $operator->id])
@@ -96,7 +95,7 @@ it('rejects assigning a work order to a non-technician with 422', function () {
 it('rejects assigning a work order to a non-existent user with 422', function () {
     $manager = User::factory()->manager()->create();
 
-    Sanctum::actingAs($manager);
+    test()->actingAs($manager);
     $id = reportWorkOrder();
 
     $this->postJson("/api/v1/work-orders/{$id}/assign", ['technician_id' => '999999'])
@@ -108,12 +107,12 @@ it('forbids a technician who is not the assignee from starting', function () {
     $assignee = User::factory()->technician()->create();
     $someoneElse = User::factory()->technician()->create();
 
-    Sanctum::actingAs($manager);
+    test()->actingAs($manager);
     $id = reportWorkOrder();
     $this->postJson("/api/v1/work-orders/{$id}/assign", ['technician_id' => (string) $assignee->id])
         ->assertOk();
 
-    Sanctum::actingAs($someoneElse);
+    test()->actingAs($someoneElse);
     $this->postJson("/api/v1/work-orders/{$id}/start")
         ->assertForbidden();
 });
@@ -122,10 +121,10 @@ it('rejects an illegal transition with 422', function () {
     $manager = User::factory()->manager()->create();
     $technician = User::factory()->technician()->create();
 
-    Sanctum::actingAs($manager);
+    test()->actingAs($manager);
     $id = reportWorkOrder();
 
-    Sanctum::actingAs($technician);
+    test()->actingAs($technician);
     $this->postJson("/api/v1/work-orders/{$id}/start")
         ->assertStatus(422);
 });
@@ -134,11 +133,11 @@ it('requires a reason to put a work order on hold', function () {
     $manager = User::factory()->manager()->create();
     $technician = User::factory()->technician()->create();
 
-    Sanctum::actingAs($manager);
+    test()->actingAs($manager);
     $id = reportWorkOrder();
     $this->postJson("/api/v1/work-orders/{$id}/assign", ['technician_id' => (string) $technician->id]);
 
-    Sanctum::actingAs($technician);
+    test()->actingAs($technician);
     $this->postJson("/api/v1/work-orders/{$id}/start");
 
     $this->postJson("/api/v1/work-orders/{$id}/hold", ['reason' => ''])
@@ -146,7 +145,7 @@ it('requires a reason to put a work order on hold', function () {
 });
 
 it('lists work orders', function () {
-    Sanctum::actingAs(User::factory()->manager()->create());
+    test()->actingAs(User::factory()->manager()->create());
     reportWorkOrder(['machine_id' => 'm-1']);
     reportWorkOrder(['machine_id' => 'm-2']);
 
@@ -156,7 +155,7 @@ it('lists work orders', function () {
 });
 
 it('returns 404 for an unknown work order', function () {
-    Sanctum::actingAs(User::factory()->manager()->create());
+    test()->actingAs(User::factory()->manager()->create());
 
     $this->getJson('/api/v1/work-orders/does-not-exist')
         ->assertNotFound();
@@ -166,7 +165,7 @@ it('renders the reporter and assignee display names', function () {
     $manager = User::factory()->manager()->create(['name' => 'Boss']);
     $technician = User::factory()->technician()->create(['name' => 'Fixer']);
 
-    Sanctum::actingAs($manager);
+    test()->actingAs($manager);
     $id = reportWorkOrder();
     $this->postJson("/api/v1/work-orders/{$id}/assign", ['technician_id' => (string) $technician->id])
         ->assertOk();
@@ -181,7 +180,7 @@ it('batches user-name lookups on the list instead of querying per row', function
     $manager = User::factory()->manager()->create();
     $technicians = User::factory()->technician()->count(3)->create();
 
-    Sanctum::actingAs($manager);
+    test()->actingAs($manager);
     foreach ($technicians as $i => $technician) {
         $id = reportWorkOrder(['machine_id' => "m-{$i}"]);
         $this->postJson("/api/v1/work-orders/{$id}/assign", ['technician_id' => (string) $technician->id])
@@ -205,7 +204,7 @@ it('batches user-name lookups on the list instead of querying per row', function
 });
 
 it('paginates the list', function () {
-    Sanctum::actingAs(User::factory()->manager()->create());
+    test()->actingAs(User::factory()->manager()->create());
     reportWorkOrder(['machine_id' => 'm-1']);
     reportWorkOrder(['machine_id' => 'm-2']);
     reportWorkOrder(['machine_id' => 'm-3']);
@@ -225,7 +224,7 @@ it('paginates the list', function () {
 });
 
 it('sorts the list by a whitelisted column', function () {
-    Sanctum::actingAs(User::factory()->manager()->create());
+    test()->actingAs(User::factory()->manager()->create());
     reportWorkOrder(['machine_id' => 'm-c']);
     reportWorkOrder(['machine_id' => 'm-a']);
     reportWorkOrder(['machine_id' => 'm-b']);
@@ -241,14 +240,14 @@ it('sorts the list by a whitelisted column', function () {
 });
 
 it('rejects an unknown sort column with 422', function () {
-    Sanctum::actingAs(User::factory()->manager()->create());
+    test()->actingAs(User::factory()->manager()->create());
 
     $this->getJson('/api/v1/work-orders?sort=id')
         ->assertStatus(422);
 });
 
 it('sorts the list by reason', function () {
-    Sanctum::actingAs(User::factory()->manager()->create());
+    test()->actingAs(User::factory()->manager()->create());
     reportWorkOrder(['machine_id' => 'm-1', 'reason' => 'operator_report']);
     reportWorkOrder(['machine_id' => 'm-2', 'reason' => 'breakdown']);
     reportWorkOrder(['machine_id' => 'm-3', 'reason' => 'inspection']);
@@ -264,7 +263,7 @@ it('sorts the list by the assignee display name, not the raw id', function () {
     $alice = User::factory()->technician()->create(['name' => 'Alice']);
     $bob = User::factory()->technician()->create(['name' => 'Bob']);
 
-    Sanctum::actingAs($manager);
+    test()->actingAs($manager);
     $first = reportWorkOrder(['machine_id' => 'm-1']);
     $second = reportWorkOrder(['machine_id' => 'm-2']);
     $this->postJson("/api/v1/work-orders/{$first}/assign", ['technician_id' => (string) $bob->id])->assertOk();
@@ -277,7 +276,7 @@ it('sorts the list by the assignee display name, not the raw id', function () {
 });
 
 it('includes the reported timestamp on the list', function () {
-    Sanctum::actingAs(User::factory()->manager()->create());
+    test()->actingAs(User::factory()->manager()->create());
     reportWorkOrder(['machine_id' => 'm-1']);
 
     $response = $this->getJson('/api/v1/work-orders')->assertOk();
@@ -297,7 +296,7 @@ it('stamps the report time from the injected clock', function () {
         }
     });
 
-    Sanctum::actingAs(User::factory()->manager()->create());
+    test()->actingAs(User::factory()->manager()->create());
 
     $this->postJson('/api/v1/work-orders', ['machine_id' => 'm-1', 'reason' => 'breakdown'])
         ->assertCreated()
@@ -305,7 +304,7 @@ it('stamps the report time from the injected clock', function () {
 });
 
 it('includes the reported timestamp on a single work order', function () {
-    Sanctum::actingAs(User::factory()->manager()->create());
+    test()->actingAs(User::factory()->manager()->create());
     $id = reportWorkOrder();
 
     $response = $this->getJson("/api/v1/work-orders/{$id}")->assertOk();

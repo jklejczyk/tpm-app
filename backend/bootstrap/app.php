@@ -19,8 +19,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // API is JSON-only: unauthenticated requests get 401, never a redirect to a
-        // (non-existent) login page — even from a browser that sends Accept: text/html.
+        $middleware->statefulApi();
+
         $middleware->redirectGuestsTo(
             fn (Request $request) => $request->is('api/*') ? null : '/login',
         );

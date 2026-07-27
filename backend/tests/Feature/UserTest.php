@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use App\Models\User;
-use Laravel\Sanctum\Sanctum;
 
 it('lists users of a given role, ordered by name', function () {
     User::factory()->technician()->create(['name' => 'Bob']);
@@ -11,7 +10,7 @@ it('lists users of a given role, ordered by name', function () {
     User::factory()->manager()->create(['name' => 'Mark']);
     User::factory()->create(['name' => 'Olivia']); // operator
 
-    Sanctum::actingAs(User::factory()->manager()->create());
+    test()->actingAs(User::factory()->manager()->create());
 
     $this->getJson('/api/v1/users/role/technician')
         ->assertOk()
@@ -24,7 +23,7 @@ it('filters by the manager role', function () {
     User::factory()->technician()->create(['name' => 'Tina']);
     User::factory()->manager()->create(['name' => 'Mark']);
 
-    Sanctum::actingAs(User::factory()->manager()->create(['name' => 'Zoe']));
+    test()->actingAs(User::factory()->manager()->create(['name' => 'Zoe']));
 
     $this->getJson('/api/v1/users/role/manager')
         ->assertOk()
@@ -34,7 +33,7 @@ it('filters by the manager role', function () {
 });
 
 it('rejects an unknown role with 422', function () {
-    Sanctum::actingAs(User::factory()->manager()->create());
+    test()->actingAs(User::factory()->manager()->create());
 
     $this->getJson('/api/v1/users/role/wizard')->assertStatus(422);
 });

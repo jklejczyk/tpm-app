@@ -1,7 +1,6 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import * as authApi from '@/api/auth'
-import { getToken, setToken } from '@/api/http'
 import type { AuthUser } from '@/types/user'
 
 const USER_KEY = 'tpm.user'
@@ -28,17 +27,15 @@ function readStoredUser(): AuthUser | null {
 export const useAuthStore = defineStore('auth', () => {
     const user = ref<AuthUser | null>(readStoredUser())
 
-    const isAuthenticated = computed(() => user.value !== null && getToken() !== null)
+    const isAuthenticated = computed(() => user.value !== null)
 
     async function login(email: string, password: string): Promise<void> {
-        const res = await authApi.login(email, password)
-        setToken(res.token)
-        user.value = res.user
-        localStorage.setItem(USER_KEY, JSON.stringify(res.user))
+        const authUser = await authApi.login(email, password)
+        user.value = authUser
+        localStorage.setItem(USER_KEY, JSON.stringify(authUser))
     }
 
     function clearSession(): void {
-        setToken(null)
         user.value = null
         localStorage.removeItem(USER_KEY)
     }
