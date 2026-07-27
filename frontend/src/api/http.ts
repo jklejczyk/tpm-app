@@ -30,10 +30,10 @@ export class ApiError extends Error {
 }
 
 export function friendlyMessage(error: unknown): string {
-    if (error instanceof ApiError) {
-        return error.status >= 500 ? 'Something went wrong. Please try again.' : error.message
-    }
-    return 'Network error. Please check your connection.'
+    if (!(error instanceof ApiError)) return 'Something went wrong. Please try again.'
+    if (error.status === 0) return 'Network error. Please check your connection.'
+    if (error.status >= 500) return 'Something went wrong. Please try again.'
+    return error.message
 }
 
 export const http = axios.create({
