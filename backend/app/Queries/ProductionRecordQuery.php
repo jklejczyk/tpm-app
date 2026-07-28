@@ -12,6 +12,11 @@ use Tpm\Shared\MachineId;
 
 final class ProductionRecordQuery
 {
+    /**
+     * @var list<string>
+     */
+    private const RELATIONS = ['machine'];
+
     public function __construct(
         private readonly ProductionRecordMapper $mapper,
     ) {}
@@ -37,7 +42,7 @@ final class ProductionRecordQuery
     public function available(): Collection
     {
         return ProductionRecordModel::query()
-            ->with('machine')
+            ->with(self::RELATIONS)
             ->orderBy('machine_id')
             ->orderByDesc('period_start')
             ->get();
@@ -45,6 +50,6 @@ final class ProductionRecordQuery
 
     public function find(string $id): ProductionRecordModel
     {
-        return ProductionRecordModel::query()->with('machine')->findOrFail($id);
+        return ProductionRecordModel::query()->with(self::RELATIONS)->findOrFail($id);
     }
 }
