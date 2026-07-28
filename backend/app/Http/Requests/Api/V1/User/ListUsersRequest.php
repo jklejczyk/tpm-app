@@ -27,4 +27,12 @@ final class ListUsersRequest extends FormRequest
             'role' => ['required', Rule::enum(Role::class)],
         ];
     }
+
+    public function role(): Role
+    {
+        $role = $this->enum('role', Role::class);
+        assert($role instanceof Role);
+
+        return $role;
+    }
 }
