@@ -23,7 +23,7 @@ final class EloquentMachineRepository implements MachineRepository
         );
     }
 
-    public function byId(MachineId $id): ?Machine
+    public function findById(MachineId $id): ?Machine
     {
         $row = MachineModel::find($id->value);
 

@@ -38,7 +38,7 @@ class TpmSeeder extends Seeder
         for ($i = 0; $i < self::MACHINE_COUNT; $i++) {
             $code = fake()->unique()->bothify('?????#??');
 
-            if ($repository->byId(new MachineId($code)) === null) {
+            if ($repository->findById(new MachineId($code)) === null) {
                 $repository->save(Machine::register(new MachineId($code), $code));
             }
         }
