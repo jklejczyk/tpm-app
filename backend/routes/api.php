@@ -6,7 +6,6 @@ use App\Http\Controllers\Api\V1\OeeController;
 use App\Http\Controllers\Api\V1\ProductionRecordController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\WorkOrderController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::post('v1/login', [AuthController::class, 'login'])->middleware('throttle:login');
