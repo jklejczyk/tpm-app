@@ -9,7 +9,7 @@ use App\Http\Controllers\Api\V1\WorkOrderController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::post('v1/login', [AuthController::class, 'login']);
+Route::post('v1/login', [AuthController::class, 'login'])->middleware('throttle:login');
 
 Route::get('/user', function (Request $request) {
     return $request->user();
