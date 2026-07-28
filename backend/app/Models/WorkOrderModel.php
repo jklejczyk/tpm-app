@@ -18,8 +18,10 @@ use Illuminate\Support\Carbon;
  * @property string|null $resolution
  * @property string|null $hold_reason
  * @property Carbon $reported_at
+ * @property Carbon|null $resolved_at
  * @property-read User $reporter
  * @property-read User|null $assignee
+ * @property-read MachineModel $machine
  */
 class WorkOrderModel extends Model
 {
@@ -42,6 +44,7 @@ class WorkOrderModel extends Model
         'assigned_to',
         'resolution',
         'hold_reason',
+        'resolved_at',
     ];
 
     /**
@@ -51,6 +54,7 @@ class WorkOrderModel extends Model
     {
         return [
             'reported_at' => 'datetime',
+            'resolved_at' => 'datetime',
         ];
     }
 
@@ -68,5 +72,13 @@ class WorkOrderModel extends Model
     public function assignee(): BelongsTo
     {
         return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    /**
+     * @return BelongsTo<MachineModel, $this>
+     */
+    public function machine(): BelongsTo
+    {
+        return $this->belongsTo(MachineModel::class, 'machine_id', 'id');
     }
 }

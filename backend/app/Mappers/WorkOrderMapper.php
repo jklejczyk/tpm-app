@@ -24,6 +24,7 @@ final class WorkOrderMapper
             $row->assigned_to !== null ? new UserId((string) $row->assigned_to) : null,
             $row->resolution,
             $row->hold_reason,
+            $row->resolved_at?->toDateTimeImmutable(),
         );
     }
 }

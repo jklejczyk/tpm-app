@@ -15,7 +15,7 @@ final class WorkOrderQuery
     /**
      * @var list<string>
      */
-    private const RELATIONS = ['reporter', 'assignee'];
+    private const RELATIONS = ['reporter', 'assignee', 'machine'];
 
     public function find(string $id): WorkOrderModel
     {

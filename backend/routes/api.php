@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\MachineController;
+use App\Http\Controllers\Api\V1\OeeController;
+use App\Http\Controllers\Api\V1\ProductionRecordController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\WorkOrderController;
 use Illuminate\Http\Request;
@@ -16,6 +19,12 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
 
     Route::get('users/role/{role}', [UserController::class, 'byRole']);
+
+    Route::get('machines', [MachineController::class, 'index']);
+    Route::get('machines/{id}/oee', [OeeController::class, 'show']);
+
+    Route::get('production-records', [ProductionRecordController::class, 'index']);
+    Route::post('production-records', [ProductionRecordController::class, 'store']);
 
     Route::get('work-orders', [WorkOrderController::class, 'index']);
     Route::post('work-orders', [WorkOrderController::class, 'report']);

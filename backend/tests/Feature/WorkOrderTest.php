@@ -2,15 +2,22 @@
 
 declare(strict_types=1);
 
+use App\Models\MachineModel;
 use App\Models\User;
+use App\Models\WorkOrderModel;
 use Illuminate\Support\Facades\DB;
 use Psr\Clock\ClockInterface;
+use Tpm\Shared\Role;
+use Tpm\WorkOrder\WorkOrderStatus;
 
 /**
  * @param  array<string, string>  $overrides
  */
 function reportWorkOrder(array $overrides = []): string
 {
+    $id = $overrides['machine_id'] ?? 'm-1';
+    MachineModel::firstOrCreate(['id' => $id], ['name' => 'Machine '.$id]);
+
     return test()->postJson('/api/v1/work-orders', [
         'machine_id' => 'm-1',
         'reason' => 'breakdown',
@@ -18,9 +25,20 @@ function reportWorkOrder(array $overrides = []): string
     ])->json('data.id');
 }
 
+beforeEach(function () {
+    MachineModel::firstOrCreate(['id' => 'm-1'], ['name' => 'Machine m-1']);
+});
+
 it('rejects unauthenticated requests with 401', function () {
     $this->postJson('/api/v1/work-orders', ['machine_id' => 'm-1', 'reason' => 'breakdown'])
         ->assertUnauthorized();
+});
+
+it('rejects reporting a work order for an unknown machine with 422', function () {
+    test()->actingAs(User::factory()->manager()->create());
+
+    $this->postJson('/api/v1/work-orders', ['machine_id' => 'ghost-99', 'reason' => 'breakdown'])
+        ->assertStatus(422);
 });
 
 it('walks a work order through its full lifecycle', function () {
@@ -188,9 +206,13 @@ it('batches user-name lookups on the list instead of querying per row', function
     }
 
     $userQueries = 0;
-    DB::listen(function ($query) use (&$userQueries): void {
+    $machineQueries = 0;
+    DB::listen(function ($query) use (&$userQueries, &$machineQueries): void {
         if (preg_match('/\busers\b/i', $query->sql) === 1) {
             $userQueries++;
+        }
+        if (preg_match('/\bmachines\b/i', $query->sql) === 1) {
+            $machineQueries++;
         }
     });
 
@@ -201,6 +223,10 @@ it('batches user-name lookups on the list instead of querying per row', function
     // Eager loading batches reporters and assignees into two constant queries,
     // regardless of how many work orders the page holds — never one per row.
     expect($userQueries)->toBeLessThanOrEqual(2);
+
+    // Same guarantee for the machine relation: one constant batch query,
+    // regardless of how many distinct machines the page's rows reference.
+    expect($machineQueries)->toBeLessThanOrEqual(2);
 });
 
 it('paginates the list', function () {
@@ -310,4 +336,32 @@ it('includes the reported timestamp on a single work order', function () {
     $response = $this->getJson("/api/v1/work-orders/{$id}")->assertOk();
 
     expect($response->json('data.reportedAt'))->not->toBeNull();
+});
+
+it('stores the resolved timestamp from the injected clock', function () {
+    $instant = new DateTimeImmutable('2026-01-01T12:30:00+00:00');
+    $this->app->bind(ClockInterface::class, fn () => new class($instant) implements ClockInterface
+    {
+        public function __construct(private DateTimeImmutable $instant) {}
+
+        public function now(): DateTimeImmutable
+        {
+            return $this->instant;
+        }
+    });
+
+    $technician = User::factory()->create(['role' => Role::Technician]);
+    $workOrder = WorkOrderModel::factory()->create([
+        'status' => WorkOrderStatus::InProgress->value,
+        'assigned_to' => $technician->id,
+        'reported_at' => now()->subHour(),
+        'resolved_at' => null,
+    ]);
+
+    $this->actingAs($technician)
+        ->postJson("/api/v1/work-orders/{$workOrder->id}/resolve", ['resolution' => 'replaced bearing'])
+        ->assertOk();
+
+    expect(WorkOrderModel::query()->find($workOrder->id)->resolved_at->format(DateTimeInterface::ATOM))
+        ->toBe('2026-01-01T12:30:00+00:00');
 });

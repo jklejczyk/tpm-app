@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\ProductionRecordNotFound;
 use App\Exceptions\WorkOrderNotFound;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -31,6 +32,7 @@ return Application::configure(basePath: dirname(__DIR__))
         );
 
         $exceptions->render(fn (WorkOrderNotFound $e) => response()->json(['message' => $e->getMessage()], 404));
+        $exceptions->render(fn (ProductionRecordNotFound $e) => response()->json(['message' => $e->getMessage()], 404));
         $exceptions->render(fn (UnauthorizedTransition $e) => response()->json(['message' => $e->getMessage()], 403));
         $exceptions->render(fn (IllegalStateTransition $e) => response()->json(['message' => $e->getMessage()], 422));
         $exceptions->render(fn (AssigneeMustBeTechnician $e) => response()->json(['message' => $e->getMessage()], 422));

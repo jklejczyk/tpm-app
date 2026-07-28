@@ -36,7 +36,7 @@ const actions = computed<AllowedTransition[]>(() => {
         <h2 class="mono">{{ store.current.id }}</h2>
         <p><StatusPill :status="store.current.status" /></p>
         <p class="mono">
-            {{ store.current.machineId }} · {{ REASON_LABEL[store.current.reason] }} · reported by
+            {{ store.current.machineName }} · {{ REASON_LABEL[store.current.reason] }} · reported by
             {{ store.current.reportedByName }}
         </p>
 

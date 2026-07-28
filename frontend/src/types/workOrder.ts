@@ -8,6 +8,7 @@ export type TransitionName = 'assign' | 'start' | 'hold' | 'resume' | 'resolve' 
 export interface WorkOrder {
     id: string
     machineId: string
+    machineName: string
     status: WorkOrderStatus
     reason: WorkOrderReason
     reportedBy: string

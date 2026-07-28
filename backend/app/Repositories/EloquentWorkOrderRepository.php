@@ -34,6 +34,7 @@ final class EloquentWorkOrderRepository implements WorkOrderRepository
                 'resolution' => $workOrder->resolution(),
                 'hold_reason' => $workOrder->holdReason(),
                 'reported_at' => $workOrder->reportedAt(),
+                'resolved_at' => $workOrder->resolvedAt(),
             ],
         );
     }

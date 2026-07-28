@@ -19,7 +19,7 @@ final class ReportWorkOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'machine_id' => ['required', 'string'],
+            'machine_id' => ['required', 'string', 'exists:machines,id'],
             'reason' => ['required', Rule::enum(WorkOrderReason::class)],
         ];
     }

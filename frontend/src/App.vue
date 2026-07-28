@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { RouterView, useRouter } from 'vue-router'
+import { RouterLink, RouterView, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { ROLE_LABEL } from '@/constants/user'
 
@@ -15,6 +15,11 @@ async function logout() {
 <template>
     <header v-if="auth.isAuthenticated" class="topbar">
         <strong>TPM</strong>
+        <nav class="nav">
+            <RouterLink :to="{ name: 'work-orders' }">Work Orders</RouterLink>
+            <RouterLink :to="{ name: 'production' }">Production</RouterLink>
+            <RouterLink :to="{ name: 'oee' }">OEE</RouterLink>
+        </nav>
         <span class="who"
             >{{ auth.user?.name }} - {{ auth.user ? ROLE_LABEL[auth.user.role] : '' }}</span
         >

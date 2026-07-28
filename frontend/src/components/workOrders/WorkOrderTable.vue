@@ -67,7 +67,7 @@ function sortIndicator(field: WorkOrderSortField): string {
             <tr v-for="wo in orders" :key="wo.id" @click="emit('open', wo.id)">
                 <td><StatusPill :status="wo.status" /></td>
                 <td class="mono">{{ wo.id }}</td>
-                <td class="mono">{{ wo.machineId }}</td>
+                <td class="mono">{{ wo.machineName }}</td>
                 <td>{{ REASON_LABEL[wo.reason] }}</td>
                 <td class="mono">{{ wo.assignedToName ?? wo.assignedTo ?? '—' }}</td>
                 <td>{{ formatDate(wo.reportedAt) }}</td>

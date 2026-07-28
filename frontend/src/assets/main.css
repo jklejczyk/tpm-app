@@ -36,6 +36,21 @@ body {
     letter-spacing: 0.04em;
 }
 
+.topbar .nav {
+    display: flex;
+    gap: 0.9rem;
+}
+
+.topbar .nav a {
+    color: var(--ink);
+    text-decoration: none;
+}
+
+.topbar .nav a.router-link-active {
+    color: var(--accent);
+    font-weight: 600;
+}
+
 .topbar .who {
     margin-left: auto;
     color: var(--muted);

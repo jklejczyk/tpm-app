@@ -116,6 +116,7 @@ final class WorkOrderController extends Controller
         $workOrder->resolve(
             $this->actors->fromUser($this->currentUser($request)),
             (string) $request->string('resolution'),
+            $this->clock->now(),
         );
 
         $this->repository->save($workOrder);

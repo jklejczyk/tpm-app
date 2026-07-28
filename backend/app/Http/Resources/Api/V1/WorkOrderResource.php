@@ -19,6 +19,7 @@ class WorkOrderResource extends JsonResource
         return [
             'id' => $wo->id,
             'machineId' => $wo->machine_id,
+            'machineName' => $wo->machine->name,
             'status' => $wo->status,
             'reason' => $wo->reason,
             'reportedBy' => (string) $wo->reported_by,
