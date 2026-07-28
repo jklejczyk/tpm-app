@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "66dcabdd3b8b428968dc7e7158bb6a14",
+    "content-hash": "b4f37e64e602903895f61bcb4a08a5d2",
     "packages": [
         {
             "name": "brick/math",
@@ -1059,11 +1059,17 @@
         },
         {
             "name": "jklejczyk/tpm-core",
-            "version": "dev-main",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jklejczyk/tpm-core.git",
+                "reference": "33cd4bd140a1ca529a8cd0d0a4ac7da72adafcb0"
+            },
             "dist": {
-                "type": "path",
-                "url": "../../tpm-core",
-                "reference": "37260dde523fee914afbc30056efdc4d5b031b63"
+                "type": "zip",
+                "url": "https://api.github.com/repos/jklejczyk/tpm-core/zipball/33cd4bd140a1ca529a8cd0d0a4ac7da72adafcb0",
+                "reference": "33cd4bd140a1ca529a8cd0d0a4ac7da72adafcb0",
+                "shasum": ""
             },
             "require": {
                 "php": "^8.3"
@@ -1099,10 +1105,11 @@
                 }
             ],
             "description": "TPM domain library",
-            "transport-options": {
-                "symlink": true,
-                "relative": true
-            }
+            "support": {
+                "source": "https://github.com/jklejczyk/tpm-core/tree/1.0.0",
+                "issues": "https://github.com/jklejczyk/tpm-core/issues"
+            },
+            "time": "2026-07-28T20:26:51+00:00"
         },
         {
             "name": "laravel/framework",
@@ -10251,9 +10258,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "jklejczyk/tpm-core": 20
-    },
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
