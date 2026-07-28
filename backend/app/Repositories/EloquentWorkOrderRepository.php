@@ -37,5 +37,9 @@ final class EloquentWorkOrderRepository implements WorkOrderRepository
                 'resolved_at' => $workOrder->resolvedAt(),
             ],
         );
+
+        foreach ($workOrder->pullEvents() as $event) {
+            event($event);
+        }
     }
 }
