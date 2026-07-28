@@ -24,6 +24,10 @@ jobs:
       REDIS_HOST: 127.0.0.1
 
     services:
+      redis:
+        image: redis:7.0.15
+        ports:
+          - 6379:6379
       postgres:
         image: postgres:17-alpine
         ports:
@@ -37,24 +41,16 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-      redis:
-        image: redis:7-alpine
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - name: Setup
+        uses: ./.github/actions/setup
         with:
           php-version: '8.3'
+          coverage: pcov
 
       - name: Install Project Dependencies
         run: composer install -q --no-interaction --no-progress
@@ -68,8 +64,14 @@ jobs:
       - name: Run Migrations
         run: php artisan migrate --force
 
-      - name: Run PHPStan (Larastan)
+      - name: Run PHPStan
         run: composer run phpstan
 
-      - name: Run Tests
-        run: php artisan test
+      - name: Run Tests with Coverage
+        run: php artisan test --compact --coverage-clover=coverage.xml
+
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: coverage.xml
+          token: ${{ secrets.CODECOV_TOKEN }}

@@ -3,8 +3,6 @@ name: Backend Code Style
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
 
 defaults:
   run:
@@ -13,18 +11,30 @@ defaults:
 jobs:
   pint:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
 
-      - name: Install Project Dependencies
-        run: composer install -q --no-interaction --no-progress
+      - name: Install Laravel Pint
+        run: composer global require laravel/pint
 
-      - name: Run Laravel Pint (check only)
-        run: vendor/bin/pint --test
+      - name: Run Laravel Pint
+        run: pint
+
+      - name: Push Changes Back to Repo
+        run: |
+          git config user.name "Laravel Pint"
+          git config user.email "pint@laravel.com"
+          git add .
+          git commit -m "Laravel Pint" || exit 0
+          git push
