@@ -11,10 +11,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('v1/login', [AuthController::class, 'login'])->middleware('throttle:login');
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
-
 Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
 
