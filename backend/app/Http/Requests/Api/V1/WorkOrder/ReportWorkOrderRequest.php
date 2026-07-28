@@ -4,6 +4,7 @@ namespace App\Http\Requests\Api\V1\WorkOrder;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Tpm\Shared\MachineId;
 use Tpm\WorkOrder\WorkOrderReason;
 
 final class ReportWorkOrderRequest extends FormRequest
@@ -22,5 +23,18 @@ final class ReportWorkOrderRequest extends FormRequest
             'machine_id' => ['required', 'string', 'exists:machines,id'],
             'reason' => ['required', Rule::enum(WorkOrderReason::class)],
         ];
+    }
+
+    public function machineId(): MachineId
+    {
+        return new MachineId((string) $this->string('machine_id'));
+    }
+
+    public function reason(): WorkOrderReason
+    {
+        $reason = $this->enum('reason', WorkOrderReason::class);
+        assert($reason instanceof WorkOrderReason);
+
+        return $reason;
     }
 }

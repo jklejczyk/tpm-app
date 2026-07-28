@@ -17,11 +17,9 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Str;
 use Psr\Clock\ClockInterface;
-use Tpm\Shared\MachineId;
 use Tpm\Shared\UserId;
 use Tpm\Shared\WorkOrderId;
 use Tpm\WorkOrder\WorkOrder;
-use Tpm\WorkOrder\WorkOrderReason;
 use Tpm\WorkOrder\WorkOrderRepository;
 
 final class WorkOrderController extends Controller
@@ -48,8 +46,8 @@ final class WorkOrderController extends Controller
     {
         $workOrder = WorkOrder::report(
             new WorkOrderId((string) Str::ulid()),
-            new MachineId((string) $request->string('machine_id')),
-            WorkOrderReason::from((string) $request->string('reason')),
+            $request->machineId(),
+            $request->reason(),
             new UserId((string) $this->currentUser($request)->id),
             $this->clock->now(),
         );
@@ -72,7 +70,7 @@ final class WorkOrderController extends Controller
 
         $workOrder->assign(
             $this->actors->fromUser($this->currentUser($request)),
-            new UserId((string) $technician->id),
+            $request->technicianId(),
             $technician->role,
         );
 
@@ -94,7 +92,7 @@ final class WorkOrderController extends Controller
     {
         $workOrder->hold(
             $this->actors->fromUser($this->currentUser($request)),
-            (string) $request->string('reason'),
+            $request->reason(),
         );
 
         $this->repository->save($workOrder);
@@ -115,7 +113,7 @@ final class WorkOrderController extends Controller
     {
         $workOrder->resolve(
             $this->actors->fromUser($this->currentUser($request)),
-            (string) $request->string('resolution'),
+            $request->resolution(),
             $this->clock->now(),
         );
 

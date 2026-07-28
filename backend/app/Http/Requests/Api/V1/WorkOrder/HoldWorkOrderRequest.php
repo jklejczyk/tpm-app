@@ -20,4 +20,9 @@ final class HoldWorkOrderRequest extends FormRequest
             'reason' => ['required', 'string'],
         ];
     }
+
+    public function reason(): string
+    {
+        return (string) $this->string('reason');
+    }
 }

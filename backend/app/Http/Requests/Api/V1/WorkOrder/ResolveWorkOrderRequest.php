@@ -20,4 +20,9 @@ final class ResolveWorkOrderRequest extends FormRequest
             'resolution' => ['required', 'string'],
         ];
     }
+
+    public function resolution(): string
+    {
+        return (string) $this->string('resolution');
+    }
 }
