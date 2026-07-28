@@ -35,8 +35,8 @@ async function submit(): Promise<void> {
     try {
         const created = await store.createRecord({
             machineId: machineId.value,
-            periodStart: periodStart.value,
-            periodEnd: periodEnd.value,
+            periodStart: new Date(periodStart.value).toISOString(),
+            periodEnd: new Date(periodEnd.value).toISOString(),
             producedUnits: producedUnits.value,
             defectiveUnits: defectiveUnits.value,
             idealCycleTime: idealCycleTime.value,
