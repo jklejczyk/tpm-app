@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useOeeStore } from '@/stores/oee'
 import { useMachinesStore } from '@/stores/machines'
 import { friendlyMessage } from '@/api/http'
+import FormField from '@/components/shared/FormField.vue'
 
 const router = useRouter()
 
@@ -66,58 +67,48 @@ async function submit(): Promise<void> {
         </p>
 
         <form class="production__form" @submit.prevent="submit">
-            <label>
-                Machine
+            <FormField label="Machine" hint="Which machine this shift is for.">
                 <select v-model="machineId" required>
                     <option v-for="machine in machines.list" :key="machine.id" :value="machine.id">
                         {{ machine.name }}
                     </option>
                 </select>
-                <small class="hint">Which machine this shift is for.</small>
-            </label>
+            </FormField>
 
-            <label>
-                Shift start
+            <FormField
+                label="Shift start"
+                hint="When the shift began — the start of the planned production window."
+            >
                 <input v-model="periodStart" type="datetime-local" required />
-                <small class="hint"
-                    >When the shift began — the start of the planned production window.</small
-                >
-            </label>
+            </FormField>
 
-            <label>
-                Shift end
+            <FormField
+                label="Shift end"
+                hint="When the shift ended. The start–end length is the planned production time — the OEE denominator."
+            >
                 <input v-model="periodEnd" type="datetime-local" required />
-                <small class="hint">
-                    When the shift ended. The start–end length is the planned production time — the
-                    OEE denominator.
-                </small>
-            </label>
+            </FormField>
 
-            <label>
-                Produced units
+            <FormField
+                label="Produced units"
+                hint="Total pieces made during the shift — good and defective together."
+            >
                 <input v-model.number="producedUnits" type="number" min="0" required />
-                <small class="hint"
-                    >Total pieces made during the shift — good and defective together.</small
-                >
-            </label>
+            </FormField>
 
-            <label>
-                Defective units
+            <FormField
+                label="Defective units"
+                hint="How many of those were scrap/rejects. Good units = produced − defective (feeds Quality)."
+            >
                 <input v-model.number="defectiveUnits" type="number" min="0" required />
-                <small class="hint"
-                    >How many of those were scrap/rejects. Good units = produced − defective (feeds
-                    Quality).</small
-                >
-            </label>
+            </FormField>
 
-            <label>
-                Ideal cycle time (s/unit)
+            <FormField
+                label="Ideal cycle time (s/unit)"
+                hint="Ideal seconds to make one piece at full speed — the machine's rated pace (feeds Performance)."
+            >
                 <input v-model.number="idealCycleTime" type="number" min="1" required />
-                <small class="hint"
-                    >Ideal seconds to make one piece at full speed — the machine's rated pace (feeds
-                    Performance).</small
-                >
-            </label>
+            </FormField>
 
             <button type="submit" :disabled="submitting">
                 {{ submitting ? 'Saving…' : 'Save production record' }}
@@ -144,12 +135,5 @@ async function submit(): Promise<void> {
     flex-direction: column;
     gap: 0.6rem;
     margin-top: 1rem;
-}
-
-.hint {
-    display: block;
-    color: var(--muted);
-    font-size: 0.8rem;
-    margin-top: 0.2rem;
 }
 </style>
