@@ -11,20 +11,13 @@ import {
     type ChartOptions,
 } from 'chart.js'
 import type { OeeResult } from '@/types/oee'
+import { percentLabel, toPercent } from '@/utils/formatPercent'
 
 Chart.register(BarElement, CategoryScale, LinearScale, Tooltip)
 
 const props = defineProps<{ result: OeeResult }>()
 
 const BAR_COLOR = '#2563eb'
-
-function toPercent(ratio: number): number {
-    return Math.round(ratio * 1000) / 10
-}
-
-function percentLabel(ratio: number): string {
-    return `${toPercent(ratio).toFixed(1)}%`
-}
 
 const components = computed(() => [
     { label: 'Availability', ratio: props.result.availability },

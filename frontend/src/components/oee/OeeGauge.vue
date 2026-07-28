@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { Doughnut } from 'vue-chartjs'
 import { Chart, ArcElement, Tooltip, type ChartData, type ChartOptions } from 'chart.js'
 import type { OeeResult } from '@/types/oee'
+import { percentLabel, toPercent } from '@/utils/formatPercent'
 
 Chart.register(ArcElement, Tooltip)
 
@@ -12,14 +13,6 @@ const TRACK_COLOR = '#e2e5e9'
 const GOOD_COLOR = '#16a34a'
 const WARN_COLOR = '#ca8a04'
 const BAD_COLOR = '#c0341d'
-
-function toPercent(ratio: number): number {
-    return Math.round(ratio * 1000) / 10
-}
-
-function percentLabel(ratio: number): string {
-    return `${toPercent(ratio).toFixed(1)}%`
-}
 
 function oeeColor(ratio: number): string {
     if (ratio >= 0.85) {
