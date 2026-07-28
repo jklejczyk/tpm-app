@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useWorkOrdersStore } from '@/stores/workOrders'
 import { useAuthStore } from '@/stores/auth'
@@ -16,7 +16,11 @@ const store = useWorkOrdersStore()
 const auth = useAuthStore()
 const router = useRouter()
 
-onMounted(() => store.fetchOne(props.id))
+watch(
+    () => props.id,
+    (id) => store.fetchOne(id),
+    { immediate: true },
+)
 
 const actions = computed<AllowedTransition[]>(() => {
     const wo = store.current
