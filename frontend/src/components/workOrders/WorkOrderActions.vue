@@ -3,6 +3,7 @@ import { ref, watch } from 'vue'
 import { useWorkOrdersStore } from '@/stores/workOrders'
 import { useUsersStore } from '@/stores/users'
 import type { AllowedTransition } from '@/domain/transitions'
+import { friendlyMessage } from '@/api/http'
 
 const props = defineProps<{ id: string; actions: AllowedTransition[] }>()
 
@@ -56,7 +57,7 @@ async function run(action: AllowedTransition) {
         await store.applyTransition(props.id, action.name, payload)
         inputs.value[action.name] = ''
     } catch (e) {
-        error.value = (e as Error).message
+        error.value = friendlyMessage(e)
     } finally {
         submitting.value = null
     }

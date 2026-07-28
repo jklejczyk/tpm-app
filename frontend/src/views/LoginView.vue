@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { friendlyMessage } from '@/api/http'
 
 const email = ref('')
 const password = ref('')
@@ -17,8 +18,8 @@ async function submit() {
     try {
         await auth.login(email.value, password.value)
         router.push({ name: 'work-orders' })
-    } catch {
-        error.value = 'Invalid email or password.'
+    } catch (e) {
+        error.value = friendlyMessage(e)
     } finally {
         loading.value = false
     }

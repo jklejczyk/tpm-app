@@ -4,6 +4,7 @@ import { useWorkOrdersStore } from '@/stores/workOrders'
 import { useMachinesStore } from '@/stores/machines'
 import { REASON_LABEL } from '@/constants/workOrder'
 import type { WorkOrderReason } from '@/types/workOrder'
+import { friendlyMessage } from '@/api/http'
 
 const store = useWorkOrdersStore()
 const machines = useMachinesStore()
@@ -24,7 +25,7 @@ async function submit() {
     try {
         await store.report(machineId.value, reason.value)
     } catch (e) {
-        error.value = (e as Error).message
+        error.value = friendlyMessage(e)
     } finally {
         submitting.value = false
     }
