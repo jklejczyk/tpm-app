@@ -8,6 +8,7 @@ use DateTimeImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Tpm\Shared\Duration;
 use Tpm\Shared\MachineId;
+use Tpm\WorkOrder\WorkOrder;
 
 final class MachineDowntimeQuery
 {
@@ -25,12 +26,8 @@ final class MachineDowntimeQuery
             })
             ->get();
 
-        $total = Duration::zero();
+        $workOrders = array_values($rows->map(fn (WorkOrderModel $row): WorkOrder => $this->mapper->toEntity($row))->all());
 
-        foreach ($rows as $row) {
-            $total = $total->plus($this->mapper->toEntity($row)->downtimeWithin($from, $to));
-        }
-
-        return $total;
+        return WorkOrder::totalDowntimeWithin($workOrders, $from, $to);
     }
 }
