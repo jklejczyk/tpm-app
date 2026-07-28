@@ -5,9 +5,8 @@ namespace App\Repositories;
 use App\Mappers\MachineMapper;
 use App\Models\MachineModel;
 use Tpm\Machine\Machine;
-use Tpm\Shared\MachineId;
 use Tpm\Machine\MachineRepository;
-
+use Tpm\Shared\MachineId;
 
 final class EloquentMachineRepository implements MachineRepository
 {
