@@ -5,6 +5,7 @@ namespace Database\Factories;
 use App\Models\MachineModel;
 use App\Models\User;
 use App\Models\WorkOrderModel;
+use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 use Tpm\WorkOrder\WorkOrderReason;
@@ -39,5 +40,33 @@ class WorkOrderModelFactory extends Factory
             'hold_reason' => $status === WorkOrderStatus::OnHold ? fake()->sentence() : null,
             'resolved_at' => $isResolved ? now() : null,
         ];
+    }
+
+    /**
+     * A historical work order resolved (or closed) within the given window.
+     */
+    public function resolved(CarbonInterface $reportedAt, CarbonInterface $resolvedAt, WorkOrderStatus $status = WorkOrderStatus::Resolved): static
+    {
+        return $this->state(fn (): array => [
+            'status' => $status->value,
+            'reported_at' => $reportedAt,
+            'resolved_at' => $resolvedAt,
+            'resolution' => fake()->sentence(),
+        ]);
+    }
+
+    /**
+     * A still-open work order (no resolution yet), reported at the given time.
+     */
+    public function open(WorkOrderStatus $status, CarbonInterface $reportedAt): static
+    {
+        return $this->state(fn (): array => [
+            'status' => $status->value,
+            'reported_at' => $reportedAt,
+            'assigned_to' => $status === WorkOrderStatus::Reported ? null : User::factory(),
+            'hold_reason' => $status === WorkOrderStatus::OnHold ? fake()->sentence() : null,
+            'resolution' => null,
+            'resolved_at' => null,
+        ]);
     }
 }
