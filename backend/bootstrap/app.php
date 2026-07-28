@@ -10,6 +10,7 @@ use Tpm\WorkOrder\Exception\AssigneeMustBeTechnician;
 use Tpm\WorkOrder\Exception\IllegalStateTransition;
 use Tpm\WorkOrder\Exception\MissingHoldReason;
 use Tpm\WorkOrder\Exception\MissingResolution;
+use Tpm\WorkOrder\Exception\ResolvedBeforeReported;
 use Tpm\WorkOrder\Exception\UnauthorizedTransition;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -38,4 +39,5 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(fn (AssigneeMustBeTechnician $e) => response()->json(['message' => $e->getMessage()], 422));
         $exceptions->render(fn (MissingHoldReason $e) => response()->json(['message' => $e->getMessage()], 422));
         $exceptions->render(fn (MissingResolution $e) => response()->json(['message' => $e->getMessage()], 422));
+        $exceptions->render(fn (ResolvedBeforeReported $e) => response()->json(['message' => $e->getMessage()], 422));
     })->create();

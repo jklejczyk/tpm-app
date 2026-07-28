@@ -354,7 +354,7 @@ it('stores the resolved timestamp from the injected clock', function () {
     $workOrder = WorkOrderModel::factory()->create([
         'status' => WorkOrderStatus::InProgress->value,
         'assigned_to' => $technician->id,
-        'reported_at' => now()->subHour(),
+        'reported_at' => $instant->modify('-1 hour'),
         'resolved_at' => null,
     ]);
 
