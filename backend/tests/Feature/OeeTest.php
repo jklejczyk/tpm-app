@@ -77,6 +77,22 @@ it('rejects a window whose end is not after its start', function () {
         ->assertStatus(422);
 });
 
+it('rejects an OEE window longer than 31 days with 422', function () {
+    $user = User::factory()->create();
+    ProductionRecordModel::factory()->create([
+        'machine_id' => 'press-01',
+        'period_start' => '2026-01-01 08:00:00',
+        'period_end' => '2026-01-01 16:00:00',
+        'produced_units' => 800,
+        'defective_units' => 20,
+        'ideal_cycle_time' => 30,
+    ]);
+
+    $this->actingAs($user)
+        ->getJson(oeeUrl('press-01', '2026-01-01 00:00:00', '2026-03-01 00:00:00'))
+        ->assertStatus(422);
+});
+
 it('requires authentication', function () {
     $this->getJson(oeeUrl('press-01', '2026-01-01 08:00:00', '2026-01-01 16:00:00'))
         ->assertUnauthorized();
