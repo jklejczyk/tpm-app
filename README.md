@@ -43,7 +43,7 @@ The application follows a **ports-and-adapters (hexagonal) architecture**: depen
 - **Domain exceptions are mapped to HTTP centrally**, in `bootstrap/app.php` (`withExceptions`) — e.g. `UnauthorizedTransition` → 403, `IllegalStateTransition` / `AssigneeMustBeTechnician` / `MissingHoldReason` / `MissingResolution` / `ResolvedBeforeReported` → 422, `WorkOrderNotFound` / `ProductionRecordNotFound` → 404. Controllers stay thin, with no `try/catch`.
 - **OEE is computed on read**, from production records and Work Order downtime for the requested machine/window — no separate projection or job needed for it.
 - **Asynchronous showcase:** reporting a breakdown makes the `WorkOrder` aggregate record a `WorkOrderReported` domain event (plain PHP). The repository dispatches it as a Laravel event after persisting (`EloquentWorkOrderRepository::save()`), a sync listener (`SendBreakdownAlert`) sends a queued (`ShouldQueue`) email notification to all managers, delivered through the Redis-backed queue worker.
-- **Authentication** uses Sanctum's SPA cookie-session flow (not bearer tokens): CSRF cookie + session cookie, `SameSite` + CORS with credentials, guard `web`. The login endpoint is rate-limited (5 attempts/minute per email+IP).
+- **Authentication** uses Sanctum's SPA cookie-session flow (not bearer tokens): CSRF cookie + session cookie, `SameSite` + CORS with credentials. The login endpoint is rate-limited (5 attempts/minute per email+IP).
 
 ## Getting started
 
@@ -60,10 +60,14 @@ cp backend/.env.example backend/.env
 # 2. Build and start all services
 docker compose up -d --build
 
-# 3. Generate the application key (APP_KEY is empty in .env.example)
+# 3. Install PHP dependencies.
+docker compose exec backend composer install
+docker compose restart backend queue
+
+# 4. Generate the application key
 docker compose exec backend php artisan key:generate
 
-# 4. Run database migrations and seed demo data
+# 5. Run database migrations and seed demo data
 docker compose exec backend php artisan migrate:fresh --seed
 ```
 
@@ -81,6 +85,126 @@ All seeded users share the password `password`:
 | `operator@example.com`       | Operator   |
 | `technician@example.com`     | Technician |
 | `manager@example.com`        | Manager    |
+
+### Trying the API by hand
+
+Authentication is cookie-based (Sanctum SPA flow), not bearer tokens. Every call needs the
+session cookie, the CSRF header on writes, and an `Origin` header from the configured frontend
+domain — without it Sanctum ignores the session and answers `401`.
+
+Log in. Cookies are kept in `cookies.txt`, and the CSRF token is read back from that file:
+
+```bash
+curl -s -c cookies.txt -o /dev/null http://localhost:8082/sanctum/csrf-cookie
+
+curl -s -b cookies.txt -c cookies.txt -X POST http://localhost:8082/api/v1/login \
+  -H 'Accept: application/json' -H 'Content-Type: application/json' \
+  -H 'Origin: http://localhost:5173' \
+  -H "X-XSRF-TOKEN: $(grep XSRF-TOKEN cookies.txt | awk '{print $7}' | sed 's/%3D/=/g')" \
+  -d '{"email":"operator@example.com","password":"password"}'
+```
+
+Reading data:
+
+```bash
+curl -s -b cookies.txt -H 'Accept: application/json' -H 'Origin: http://localhost:5173' \
+  http://localhost:8082/api/v1/machines
+
+curl -s -b cookies.txt -H 'Accept: application/json' -H 'Origin: http://localhost:5173' \
+  http://localhost:8082/api/v1/work-orders
+
+curl -s -b cookies.txt -H 'Accept: application/json' -H 'Origin: http://localhost:5173' \
+  http://localhost:8082/api/v1/production-records
+
+curl -s -b cookies.txt -H 'Accept: application/json' -H 'Origin: http://localhost:5173' \
+  http://localhost:8082/api/v1/users/role/technician
+```
+
+Report a breakdown as the operator. The request field is `machine_id` in snake case, while
+responses use camel case. Take a machine id from `/machines` above:
+
+```bash
+curl -s -b cookies.txt -c cookies.txt -X POST http://localhost:8082/api/v1/work-orders \
+  -H 'Accept: application/json' -H 'Content-Type: application/json' \
+  -H 'Origin: http://localhost:5173' \
+  -H "X-XSRF-TOKEN: $(grep XSRF-TOKEN cookies.txt | awk '{print $7}' | sed 's/%3D/=/g')" \
+  -d '{"machine_id":"PASTE_MACHINE_ID","reason":"breakdown"}'
+```
+
+The rest of the lifecycle. Log in again as the manager, then as the technician, using the login
+command above with the matching e-mail; every user shares the password `password`. Replace
+`PASTE_WORK_ORDER_ID` with the id returned above:
+
+```bash
+# manager assigns the technician
+curl -s -b cookies.txt -c cookies.txt -X POST \
+  http://localhost:8082/api/v1/work-orders/PASTE_WORK_ORDER_ID/assign \
+  -H 'Accept: application/json' -H 'Content-Type: application/json' \
+  -H 'Origin: http://localhost:5173' \
+  -H "X-XSRF-TOKEN: $(grep XSRF-TOKEN cookies.txt | awk '{print $7}' | sed 's/%3D/=/g')" \
+  -d '{"technician_id":"2"}'
+
+# technician starts, holds, resumes and resolves
+curl -s -b cookies.txt -c cookies.txt -X POST \
+  http://localhost:8082/api/v1/work-orders/PASTE_WORK_ORDER_ID/start \
+  -H 'Accept: application/json' -H 'Content-Type: application/json' \
+  -H 'Origin: http://localhost:5173' \
+  -H "X-XSRF-TOKEN: $(grep XSRF-TOKEN cookies.txt | awk '{print $7}' | sed 's/%3D/=/g')" \
+  -d '{}'
+
+curl -s -b cookies.txt -c cookies.txt -X POST \
+  http://localhost:8082/api/v1/work-orders/PASTE_WORK_ORDER_ID/hold \
+  -H 'Accept: application/json' -H 'Content-Type: application/json' \
+  -H 'Origin: http://localhost:5173' \
+  -H "X-XSRF-TOKEN: $(grep XSRF-TOKEN cookies.txt | awk '{print $7}' | sed 's/%3D/=/g')" \
+  -d '{"reason":"Spare part unavailable"}'
+
+curl -s -b cookies.txt -c cookies.txt -X POST \
+  http://localhost:8082/api/v1/work-orders/PASTE_WORK_ORDER_ID/resume \
+  -H 'Accept: application/json' -H 'Content-Type: application/json' \
+  -H 'Origin: http://localhost:5173' \
+  -H "X-XSRF-TOKEN: $(grep XSRF-TOKEN cookies.txt | awk '{print $7}' | sed 's/%3D/=/g')" \
+  -d '{}'
+
+curl -s -b cookies.txt -c cookies.txt -X POST \
+  http://localhost:8082/api/v1/work-orders/PASTE_WORK_ORDER_ID/resolve \
+  -H 'Accept: application/json' -H 'Content-Type: application/json' \
+  -H 'Origin: http://localhost:5173' \
+  -H "X-XSRF-TOKEN: $(grep XSRF-TOKEN cookies.txt | awk '{print $7}' | sed 's/%3D/=/g')" \
+  -d '{"resolution":"Bearing replaced"}'
+
+# manager closes it
+curl -s -b cookies.txt -c cookies.txt -X POST \
+  http://localhost:8082/api/v1/work-orders/PASTE_WORK_ORDER_ID/close \
+  -H 'Accept: application/json' -H 'Content-Type: application/json' \
+  -H 'Origin: http://localhost:5173' \
+  -H "X-XSRF-TOKEN: $(grep XSRF-TOKEN cookies.txt | awk '{print $7}' | sed 's/%3D/=/g')" \
+  -d '{}'
+```
+
+The refusals are the point of the state machine. Each returns a different code for a different
+reason:
+
+- no session at all — `401`
+- an operator trying to assign a technician, or a technician trying to close — `403`, refused by
+  the aggregate rather than by middleware
+- a transition that is illegal from the current state, such as `resume` on a work order that is
+  not on hold — `422`
+
+Try any of them by logging in as a different user and repeating the matching command above.
+
+**OEE takes the exact boundaries of a production record**, not an arbitrary date range: `from`
+and `to` must equal that record's `period_start` and `period_end`, otherwise the endpoint answers
+`404`. Read them from `/production-records` first. The `+` of a timezone offset has to be
+percent-encoded as `%2B` in a query string:
+
+```bash
+curl -s -b cookies.txt -H 'Accept: application/json' -H 'Origin: http://localhost:5173' \
+  'http://localhost:8082/api/v1/machines/PASTE_MACHINE_ID/oee?from=2026-07-15T08:00:00%2B00:00&to=2026-07-15T16:00:00%2B00:00'
+```
+
+The seeder generates machine ids and periods randomly, so paste the values printed by
+`/production-records`.
 
 ### Queue worker
 
@@ -107,3 +231,19 @@ docker compose exec frontend npm run format
 ## Domain library
 
 The business rules — Work Order state machine, value objects (`WorkOrderId`, `MachineId`, `UserId`), roles, domain exceptions, and repository ports — live in a separate repository, [`tpm-core`](https://github.com/jklejczyk/tpm-core) (`Tpm\` namespace), consumed here as the `jklejczyk/tpm-core` Composer package. It has no dependency on Laravel and is tested, statically analyzed, and architecture-checked in isolation. This application supplies the "adapters": Eloquent-backed repository implementations, HTTP controllers/requests/resources, and the exception-to-HTTP mapping.
+
+## Known gaps
+
+**The OEE endpoint matches a production period exactly instead of querying a range.**
+`ProductionRecordQuery::forWindow()` compares `period_start` and `period_end` for equality, so
+`from` and `to` have to line up with an existing record to the second. A natural question such
+as "what was this machine's OEE in July" cannot be asked: it answers `404`, which reads like
+missing data rather than an unsupported query. The method name and the `from`/`to` parameters
+both promise a range, so the naming is misleading as well. This should be reworked into a real
+window query that aggregates the records inside the range — planned time, downtime and unit
+counts summed across them — which is a change to how OEE is computed, not just to the query.
+
+## A note on scope
+
+I did not focus on the appearance of the application, because this is a test application and the
+goal here was to present the architecture.
